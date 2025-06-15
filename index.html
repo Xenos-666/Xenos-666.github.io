@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1930s Home DIY Navigator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chosen Palette: Warm Neutrals -->
+    <!-- Application Structure Plan: A single-page application with a task-oriented dashboard structure. A fixed top navigation allows users to switch between four main views: "Safety First," "My Tool Kit," "My Projects," and "Pro vs. DIY Guide." This structure was chosen over a linear report format to empower the user, a hands-on DIYer, to quickly access the specific information they need for a given task. The "Projects" section is the interactive core, allowing users to select a specific job and see tailored tool lists and cost breakdowns. This non-linear, interactive approach enhances usability and makes the dense information more digestible and actionable. -->
+    <!-- Visualization & Content Choices: 
+    - Report Info: Essential Starter Kit Costs -> Goal: Inform budget -> Viz/Method: Interactive Bar Chart (Chart.js) -> Interaction: Hover for details -> Justification: Provides a clear visual summary of the initial financial outlay.
+    - Report Info: Project-Specific Costs (Rentals, Tools, Materials) -> Goal: Compare/Analyze -> Viz/Method: Donut Chart (Chart.js) -> Interaction: Dynamically updates when a new project is selected -> Justification: Breaks down the budget for each specific task, helping the user make informed rent vs. buy decisions.
+    - Report Info: Tool lists and DIY/Pro advice -> Goal: Organize/Inform -> Viz/Method: Interactive cards and filterable lists (HTML/CSS/JS) -> Interaction: Click-to-filter/show -> Justification: Allows for rapid access to relevant information without overwhelming the user.
+    - All visual elements like icons are created with Unicode characters and Tailwind CSS to avoid dependencies and ensure fast loading, adhering to the NO SVG/Mermaid constraint. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .nav-link {
+            transition: all 0.3s ease;
+        }
+        .nav-link.active {
+            background-color: #A16207; /* Amber-700 */
+            color: white;
+        }
+        .content-section {
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+        }
+        .project-card, .pro-guide-filter-btn {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .project-card:hover, .pro-guide-filter-btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        .project-card.active {
+            border-color: #A16207;
+            box-shadow: 0 0 0 3px rgba(161, 98, 7, 0.5);
+        }
+        .pro-guide-filter-btn.active {
+            background-color: #A16207;
+            color: white;
+            border-color: #A16207;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #A16207;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+            display: none;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .loading-spinner.active {
+            display: block;
+        }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-amber-50 text-slate-800">
+
+    <header class="bg-stone-800 text-white p-6 text-center shadow-lg">
+        <h1 class="text-3xl md:text-4xl font-bold text-amber-400">1930s Home DIY Navigator</h1>
+        <p class="mt-2 text-stone-300 max-w-2xl mx-auto">Your interactive guide to safely and affordably renovating your vintage home.</p>
+    </header>
+
+    <nav class="sticky top-0 bg-white shadow-md z-10 p-2">
+        <div class="max-w-5xl mx-auto flex justify-center space-x-1 md:space-x-4">
+            <button class="nav-link active font-semibold py-2 px-3 md:px-6 rounded-md text-sm md:text-base" data-target="safety">⚠️ Safety First</button>
+            <button class="nav-link font-semibold py-2 px-3 md:px-6 rounded-md text-sm md:text-base" data-target="toolkit">🛠️ My Tool Kit</button>
+            <button class="nav-link font-semibold py-2 px-3 md:px-6 rounded-md text-sm md:text-base" data-target="projects">📋 My Projects</button>
+            <button class="nav-link font-semibold py-2 px-3 md:px-6 rounded-md text-sm md:text-base" data-target="pro-guide">🤔 Pro vs. DIY</button>
+        </div>
+    </nav>
+
+    <main class="p-4 md:p-8">
+        <div id="app-content" class="max-w-5xl mx-auto">
+
+            <section id="safety" class="content-section active">
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl font-bold text-yellow-800">Crucial First Steps: Safety in an Older Home</h2>
+                    <p class="mt-2 text-slate-600 max-w-3xl mx-auto">Before you pick up a single tool, understanding the unique hazards of a 1930s home is non-negotiable. This section highlights the most critical safety information to protect your health and your investment.</p>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-6 rounded-r-lg shadow-md">
+                        <h3 class="text-xl font-bold flex items-center"><span class="text-2xl mr-3">⚠️</span> Potential Hazard: Asbestos</h3>
+                        <p class="mt-2 text-red-900">Found in flooring, insulation, and joint compounds. If disturbed (sanding, sawing), it releases dangerous fibers. If you suspect asbestos, DO NOT proceed. Have the material tested by a professional first. Leave any material in good condition undisturbed.</p>
+                    </div>
+                    <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-6 rounded-r-lg shadow-md">
+                        <h3 class="text-xl font-bold flex items-center"><span class="text-2xl mr-3">⚠️</span> Potential Hazard: Lead Paint</h3>
+                        <p class="mt-2 text-yellow-900">Very common in homes built before 1978. Sanding or scraping creates toxic dust. Use lead-safe work practices: containment, proper PPE (N-100 respirator), and HEPA vacuums. Consider professional testing for large-scale paint removal.</p>
+                    </div>
+                </div>
+
+                <div class="mt-12 text-center">
+                    <h3 class="text-2xl font-bold text-yellow-800">Plumbing & Electrical: When to Call a Pro</h3>
+                    <p class="mt-2 text-slate-600 max-w-3xl mx-auto">Your mechanical skills are a huge asset, but old home systems have unique risks. Know your limits.</p>
+                </div>
+                <div class="mt-6 grid md:grid-cols-2 gap-8">
+                    <div class="bg-white p-6 rounded-lg shadow-lg border border-slate-200">
+                        <h4 class="text-xl font-bold text-blue-800">🔌 Electrical Systems</h4>
+                        <p class="mt-2 text-slate-600">Minor tasks like replacing an outlet can be DIY if you're careful. Always turn off power and test with a voltage tester!</p>
+                        <p class="font-bold mt-4 text-red-600">CALL A PRO FOR:</p>
+                        <ul class="list-disc list-inside mt-2 space-y-1 text-slate-700">
+                            <li>Outdated wiring (knob-and-tube, cloth)</li>
+                            <li>Flickering lights or buzzing switches</li>
+                            <li>Upgrading a fuse box to a circuit breaker</li>
+                            <li>Whole-house rewiring</li>
+                        </ul>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-lg border border-slate-200">
+                        <h4 class="text-xl font-bold text-cyan-800">💧 Plumbing Systems</h4>
+                        <p class="mt-2 text-slate-600">You can tackle minor clogs with a plunger or snake.</p>
+                        <p class="font-bold mt-4 text-red-600">CALL A PRO FOR:</p>
+                         <ul class="list-disc list-inside mt-2 space-y-1 text-slate-700">
+                            <li>Rust-colored water or low pressure</li>
+                            <li>Persistent clogs or foul odors</li>
+                            <li>Repairing or replacing old pipes</li>
+                            <li>Sewer line issues</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section id="toolkit" class="content-section">
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl font-bold text-yellow-800">Building Your Core DIY Tool Kit</h2>
+                    <p class="mt-2 text-slate-600 max-w-3xl mx-auto">This section outlines the essential tools for your home repair journey. Your automotive experience gives you a great head start! We'll visualize the starter kit cost and provide an interactive list to explore.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-lg border border-slate-200 mb-8">
+                     <h3 class="text-xl font-bold text-center text-slate-700 mb-4">Essential Starter Kit: Estimated Costs</h3>
+                     <div class="chart-container">
+                        <canvas id="costChart"></canvas>
+                    </div>
+                </div>
+                <div id="tool-list-container" class="mt-8"></div>
+
+                <div class="mt-8 bg-amber-100 p-6 rounded-lg shadow-md border border-amber-200">
+                    <h3 class="text-xl font-bold text-yellow-800 mb-4">✨ Need a Tool Recommendation?</h3>
+                    <p class="text-slate-700 mb-3">Describe a task or problem, and I'll suggest tools you might need.</p>
+                    <textarea id="tool-recommendation-input" class="w-full p-3 border border-amber-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500" rows="3" placeholder="e.g., 'How do I remove stubborn old caulk?', 'What tools for fixing a wobbly stair railing?'"></textarea>
+                    <button id="get-tool-recommendation-btn" class="mt-4 bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 px-6 rounded-md shadow-lg transition duration-300 ease-in-out transform hover:scale-105">✨ Recommend Tools</button>
+                    <div id="tool-recommendation-result" class="mt-4 p-3 bg-white rounded-md border border-amber-200 text-slate-700 min-h-[50px] flex items-center justify-center">
+                        <div class="loading-spinner" id="tool-recommendation-spinner"></div>
+                        <p id="tool-recommendation-text" class="text-center">Your recommendations will appear here.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="projects" class="content-section">
+                 <div class="text-center mb-8">
+                    <h2 class="text-3xl font-bold text-yellow-800">Interactive Project Planner</h2>
+                    <p class="mt-2 text-slate-600 max-w-3xl mx-auto">This section is your interactive project hub. Select a common 1930s home repair project below to get a detailed breakdown of the required tools, estimated costs, and key steps. We'll help you decide what to rent versus what to buy to stay on budget.</p>
+                </div>
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                    <button class="project-card bg-white p-4 rounded-lg shadow-md border-2 border-transparent text-center" data-project="floors">
+                        <span class="text-4xl">🪵</span>
+                        <h3 class="mt-2 font-bold">Refinish Floors</h3>
+                    </button>
+                     <button class="project-card bg-white p-4 rounded-lg shadow-md border-2 border-transparent text-center" data-project="walls">
+                        <span class="text-4xl">🧱</span>
+                        <h3 class="mt-2 font-bold">Fix Walls</h3>
+                    </button>
+                     <button class="project-card bg-white p-4 rounded-lg shadow-md border-2 border-transparent text-center" data-project="vents">
+                        <span class="text-4xl">💨</span>
+                        <h3 class="mt-2 font-bold">Replace Vents</h3>
+                    </button>
+                     <button class="project-card bg-white p-4 rounded-lg shadow-md border-2 border-transparent text-center" data-project="trim">
+                        <span class="text-4xl">🖼️</span>
+                        <h3 class="mt-2 font-bold">New Trim</h3>
+                    </button>
+                </div>
+                <div id="project-details" class="bg-white p-6 rounded-lg shadow-lg border border-slate-200 min-h-[300px]">
+                    <p class="text-center text-slate-500">Select a project above to see the details.</p>
+                </div>
+            </section>
+            
+            <section id="pro-guide" class="content-section">
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl font-bold text-yellow-800">Pro vs. DIY Decision Guide</h2>
+                    <p class="mt-2 text-slate-600 max-w-3xl mx-auto">Use this guide to quickly determine if a common issue in an older home is something you can tackle yourself or if it requires professional expertise. Click the filters to narrow down the list.</p>
+                </div>
+                <div class="flex justify-center space-x-2 mb-6">
+                    <button class="pro-guide-filter-btn active bg-stone-200 border border-stone-300 px-4 py-2 rounded-full" data-filter="all">All</button>
+                    <button class="pro-guide-filter-btn bg-stone-200 border border-stone-300 px-4 py-2 rounded-full" data-filter="Plumbing">Plumbing</button>
+                    <button class="pro-guide-filter-btn bg-stone-200 border border-stone-300 px-4 py-2 rounded-full" data-filter="Electrical">Electrical</button>
+                    <button class="pro-guide-filter-btn bg-stone-200 border border-stone-300 px-4 py-2 rounded-full" data-filter="Structural/Material">Structural</button>
+                </div>
+                <div class="overflow-x-auto bg-white rounded-lg shadow-lg">
+                    <table class="w-full text-sm text-left text-slate-500">
+                        <thead class="text-xs text-slate-700 uppercase bg-slate-100">
+                            <tr>
+                                <th scope="col" class="px-6 py-3">Issue</th>
+                                <th scope="col" class="px-6 py-3">DIY Feasible?</th>
+                                <th scope="col" class="px-6 py-3">Recommended Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pro-guide-body">
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+<script>
+const appData = {
+    tools: [
+        { name: 'Measuring Tape', category: 'Hand', costMin: 5, costMax: 10, use: 'All measurements, project planning' },
+        { name: 'Hammer (Rip Claw)', category: 'Hand', costMin: 10, costMax: 30, use: 'Nailing, light demolition, prying' },
+        { name: 'Multi-bit Screwdriver', category: 'Hand', costMin: 15, costMax: 25, use: 'Assembly, general repairs, electrical' },
+        { name: 'Pliers Set', category: 'Hand', costMin: 15, costMax: 25, use: 'Gripping, cutting wire, holding parts' },
+        { name: 'Adjustable Wrench', category: 'Hand', costMin: 10, costMax: 15, use: 'Plumbing, tightening nuts/bolts' },
+        { name: 'Level (Bubble)', category: 'Hand', costMin: 10, costMax: 20, use: 'Hanging pictures, installing shelves' },
+        { name: 'Utility Knife', category: 'Hand', costMin: 5, costMax: 20, use: 'Cutting, scoring, opening packages' },
+        { name: 'Putty Knife', category: 'Hand', costMin: 5, costMax: 15, use: 'Spackling, scraping, filling holes' },
+        { name: 'Pry Bar', category: 'Hand', costMin: 10, costMax: 25, use: 'Demolition, removing trim/molding' },
+        { name: 'Caulking Gun', category: 'Hand', costMin: 5, costMax: 20, use: 'Sealing gaps, applying adhesives' },
+        { name: 'Cordless Drill/Driver', category: 'Power', costMin: 70, costMax: 120, use: 'Drilling holes, driving screws' },
+        { name: 'Oscillating Multi-Tool', category: 'Power', costMin: 30, costMax: 60, use: 'Sanding, cutting, scraping in tight spaces' },
+        { name: 'Shop Vacuum (Basic)', category: 'Power', costMin: 70, costMax: 150, use: 'General cleanup, dust control' },
+        { name: 'Safety Goggles', category: 'Safety', costMin: 10, costMax: 25, use: 'Eye protection from debris' },
+        { name: 'Respirator (N-100)', category: 'Safety', costMin: 20, costMax: 50, use: 'Protection from dust, fumes, fibers' },
+        { name: 'Ear Protection', category: 'Safety', costMin: 15, costMax: 30, use: 'Noise reduction for power tools' },
+    ],
+    projects: {
+        floors: {
+            title: 'Refinishing Hardwood Floors',
+            description: 'An intermediate project that yields huge savings. The key is renting specialized sanders and meticulous prep work.',
+            costs: { Rentals: 250, Materials: 400, Tools: 50 },
+            tools: [
+                { name: 'Drum/Orbital Sander', type: 'Rent' },
+                { name: 'Edger Sander', type: 'Rent' },
+                { name: 'Pry Bar & Nail Set', type: 'Buy' },
+                { name: 'Wood Filler & Putty Knife', type: 'Buy' },
+                { name: 'Shop Vacuum (HEPA)', type: 'Buy/Rent' },
+                { name: 'Sandpaper (various grits)', type: 'Buy' },
+                { name: 'Applicators & Rags', type: 'Buy' },
+                { name: 'Stain & Finish Coat', type: 'Buy' },
+                { name: 'Full Safety Gear', type: 'Buy' },
+            ]
+        },
+        walls: {
+            title: 'Fixing Drywall & Plaster Cracks',
+            description: 'First, determine if you have plaster or drywall. Plaster repair is messier and requires a bonding agent for good adhesion.',
+            costs: { Rentals: 0, Materials: 40, Tools: 20 },
+            tools: [
+                { name: 'Putty/Joint Knives', type: 'Buy' },
+                { name: 'Utility Knife', type: 'Buy' },
+                { name: 'Mesh Tape', type: 'Buy' },
+                { name: 'Joint Compound / Spackle', type: 'Buy' },
+                { name: 'Plaster Bonding Agent (if needed)', type: 'Buy' },
+                { name: 'Sandpaper', type: 'Buy' },
+                { name: 'Respirator & Goggles', type: 'Buy' },
+            ]
+        },
+        vents: {
+            title: 'Replacing Vent Covers',
+            description: 'An easy, high-impact project perfect for a beginner. It\'s a quick aesthetic upgrade that builds confidence.',
+            costs: { Rentals: 0, Materials: 80, Tools: 10 },
+            tools: [
+                { name: 'Screwdriver', type: 'Buy' },
+                { name: 'Measuring Tape', type: 'Buy' },
+                { name: 'Utility Knife (to score paint)', type: 'Buy' },
+                { name: 'Vacuum w/ Hose', type: 'Buy' },
+                { name: 'New Vent Covers', type: 'Buy' },
+            ]
+        },
+        trim: {
+            title: 'Replacing Window Trim',
+            description: 'This can be done with hand tools for precision and budget-friendliness. Measure twice, cut once!',
+            costs: { Rentals: 0, Materials: 100, Tools: 80 },
+            tools: [
+                { name: 'Handsaw & Miter Box', type: 'Buy' },
+                { name: 'Pry Bar', type: 'Buy' },
+                { name: 'Hammer & Finishing Nails', type: 'Buy' },
+                { name: 'Nail Set', type: 'Buy' },
+                { name: 'Wood Putty & Putty Knife', type: 'Buy' },
+                { name: 'Sandpaper & Wood Glue', type: 'Buy' },
+                { name: 'Measuring Tape & Pencil', type: 'Buy' },
+            ]
+        }
+    },
+    proGuide: [
+        { issue: 'Minor Clogs (sink/toilet)', category: 'Plumbing', diy: 'Yes', action: 'DIY with plunger/snake' },
+        { issue: 'Leaky Faucet/Showerhead', category: 'Plumbing', diy: 'Yes', action: 'DIY with proper parts/tape' },
+        { issue: 'Rusting/Decaying Pipes', category: 'Plumbing', diy: 'No', action: 'Professional re-piping' },
+        { issue: 'Sewer Line Damage', category: 'Plumbing', diy: 'No', action: 'Professional repair' },
+        { issue: 'Replacing Light Switch/Outlet', category: 'Electrical', diy: 'Yes', action: 'DIY after power off & testing' },
+        { issue: 'Flickering Lights/Buzzing Switches', category: 'Electrical', diy: 'No', action: 'Professional inspection' },
+        { issue: 'Outdated Wiring (Knob-and-Tube)', category: 'Electrical', diy: 'No', action: 'Professional assessment/rewiring' },
+        { issue: 'Outdated Electrical Panel (Fuses)', category: 'Electrical', diy: 'No', action: 'Professional upgrade' },
+        { issue: 'Minor Wood Rot (Trim/Sill)', category: 'Structural/Material', diy: 'Yes', action: 'DIY with epoxy/filler' },
+        { issue: 'Asbestos-Containing Materials', category: 'Structural/Material', diy: 'No', action: 'Professional testing/remediation' },
+        { issue: 'Lead Paint (Disturbance)', category: 'Structural/Material', diy: 'No', action: 'Professional testing/remediation' },
+        { issue: 'Foundation/Structural Cracks', category: 'Structural/Material', diy: 'No', action: 'Professional structural engineer' },
+    ]
+};
+
+let costChartInstance;
+let projectChartInstance;
+
+document.addEventListener('DOMContentLoaded', () => {
+    initNavigation();
+    renderCostChart();
+    renderToolList();
+    initProjectSelector();
+    renderProGuide('all');
+    initProGuideFilters();
+
+    // LLM Feature 1: Tool Recommendation
+    document.getElementById('get-tool-recommendation-btn').addEventListener('click', getToolRecommendation);
+
+});
+
+function initNavigation() {
+    const navLinks = document.querySelectorAll('.nav-link');
+    const contentSections = document.querySelectorAll('.content-section');
+
+    navLinks.forEach(link => {
+        link.addEventListener('click', () => {
+            const targetId = link.dataset.target;
+
+            navLinks.forEach(l => l.classList.remove('active'));
+            link.classList.add('active');
+
+            contentSections.forEach(section => {
+                if (section.id === targetId) {
+                    section.classList.add('active');
+                } else {
+                    section.classList.remove('active');
+                }
+            });
+        });
+    });
+}
+
+function renderCostChart() {
+    const ctx = document.getElementById('costChart').getContext('2d');
+    if (costChartInstance) {
+        costChartInstance.destroy();
+    }
+    costChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: appData.tools.map(t => t.name),
+            datasets: [{
+                label: 'Estimated Cost ($)',
+                data: appData.tools.map(t => [t.costMin, t.costMax]),
+                backgroundColor: 'rgba(161, 98, 7, 0.6)',
+                borderColor: 'rgba(161, 98, 7, 1)',
+                borderWidth: 1,
+                borderSkipped: false,
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const raw = context.raw;
+                            return `${context.label}: $${raw[0]} - $${raw[1]}`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Estimated Cost (USD)'
+                    }
+                },
+                y: {
+                    ticks: {
+                        autoSkip: false,
+                        font: {
+                            size: 10
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+function renderToolList() {
+    const container = document.getElementById('tool-list-container');
+    const toolHtml = appData.tools.map(tool => `
+        <div class="bg-white p-4 rounded-lg shadow-md border border-slate-200 mb-3 flex items-start space-x-4">
+             <div class="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-full bg-amber-100 text-amber-700 text-2xl">${tool.category === 'Hand' ? '✋' : tool.category === 'Power' ? '⚡' : '🛡️'}</div>
+             <div class="flex-grow">
+                <h4 class="font-bold text-slate-800">${tool.name}</h4>
+                <p class="text-sm text-slate-600">${tool.use}</p>
+                <p class="text-sm font-semibold text-yellow-800 mt-1">$${tool.costMin} - $${tool.costMax}</p>
+             </div>
+        </div>
+    `).join('');
+    container.innerHTML = `<h3 class="text-2xl font-bold text-center text-yellow-800 mb-6">Essential Tool Details</h3>${toolHtml}`;
+}
+
+function initProjectSelector() {
+    const projectCards = document.querySelectorAll('.project-card');
+    projectCards.forEach(card => {
+        card.addEventListener('click', () => {
+            const projectName = card.dataset.project;
+            projectCards.forEach(c => c.classList.remove('active'));
+            card.classList.add('active');
+            renderProjectDetails(projectName);
+        });
+    });
+}
+
+function renderProjectDetails(projectName) {
+    const project = appData.projects[projectName];
+    const container = document.getElementById('project-details');
+    
+    const toolListHtml = project.tools.map(tool => `
+        <li class="flex justify-between items-center py-2 border-b border-slate-100">
+            <span>${tool.name}</span>
+            <span class="text-xs font-semibold px-2 py-1 rounded-full ${tool.type === 'Rent' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'}">${tool.type}</span>
+        </li>
+    `).join('');
+
+    container.innerHTML = `
+        <div class="grid md:grid-cols-2 gap-8">
+            <div>
+                <h3 class="text-2xl font-bold text-yellow-800">${project.title}</h3>
+                <p class="mt-2 text-slate-600">${project.description}</p>
+                <h4 class="font-bold mt-4 mb-2 text-slate-700">Required Tools & Materials:</h4>
+                <ul class="text-sm">${toolListHtml}</ul>
+                <button id="get-project-tips-btn" class="mt-6 bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 px-6 rounded-md shadow-lg transition duration-300 ease-in-out transform hover:scale-105" data-project-name="${project.title}">✨ Get More Tips</button>
+                <div id="project-tips-result" class="mt-4 p-3 bg-amber-100 rounded-md border border-amber-200 text-slate-700 min-h-[50px] flex items-center justify-center">
+                    <div class="loading-spinner" id="project-tips-spinner"></div>
+                    <p id="project-tips-text" class="text-center">Click 'Get More Tips' for detailed advice.</p>
+                </div>
+            </div>
+            <div>
+                <h4 class="text-xl font-bold text-center text-slate-700 mb-4">Estimated Cost Breakdown</h4>
+                <div class="chart-container h-64 md:h-72">
+                    <canvas id="projectChart"></canvas>
+                </div>
+            </div>
+        </div>
+    `;
+
+    renderProjectChart(project.costs);
+
+    // LLM Feature 2: Project Expansion
+    document.getElementById('get-project-tips-btn').addEventListener('click', getProjectTips);
+}
+
+function renderProjectChart(costData) {
+    const ctx = document.getElementById('projectChart').getContext('2d');
+    if (projectChartInstance) {
+        projectChartInstance.destroy();
+    }
+    projectChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: Object.keys(costData),
+            datasets: [{
+                data: Object.values(costData),
+                backgroundColor: [
+                    'rgba(59, 130, 246, 0.7)',  // blue-500
+                    'rgba(16, 185, 129, 0.7)', // emerald-500
+                    'rgba(249, 115, 22, 0.7)'  // orange-500
+                ],
+                borderColor: [
+                    'rgba(59, 130, 246, 1)',
+                    'rgba(16, 185, 129, 1)',
+                    'rgba(249, 115, 22, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed !== null) {
+                                label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(context.parsed);
+                            }
+                            return label;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+function renderProGuide(filter) {
+    const tbody = document.getElementById('pro-guide-body');
+    const filteredData = filter === 'all' 
+        ? appData.proGuide 
+        : appData.proGuide.filter(item => item.category === filter);
+
+    tbody.innerHTML = filteredData.map(item => `
+        <tr class="bg-white border-b hover:bg-slate-50" data-category="${item.category}">
+            <th scope="row" class="px-6 py-4 font-medium text-slate-900 whitespace-nowrap">${item.issue}</th>
+            <td class="px-6 py-4">
+                <span class="px-3 py-1 text-xs font-semibold rounded-full ${item.diy === 'Yes' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                    ${item.diy}
+                </span>
+            </td>
+            <td class="px-6 py-4">${item.action}</td>
+        </tr>
+    `).join('');
+}
+
+function initProGuideFilters() {
+    const filterButtons = document.querySelectorAll('.pro-guide-filter-btn');
+    filterButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const filter = button.dataset.filter;
+            filterButtons.forEach(b => b.classList.remove('active'));
+            button.classList.add('active');
+            renderProGuide(filter);
+        });
+    });
+}
+
+async function getToolRecommendation() {
+    const inputElement = document.getElementById('tool-recommendation-input');
+    const resultElement = document.getElementById('tool-recommendation-text');
+    const spinner = document.getElementById('tool-recommendation-spinner');
+    const promptText = inputElement.value.trim();
+
+    if (!promptText) {
+        resultElement.innerHTML = 'Please enter a task or problem to get tool recommendations.';
+        return;
+    }
+
+    spinner.classList.add('active');
+    resultElement.innerHTML = ''; // Clear previous results
+    resultElement.style.display = 'none';
+
+    try {
+        const chatHistory = [];
+        chatHistory.push({ role: "user", parts: [{ text: `Based on the following task or problem related to home repair in a 1930s house, suggest appropriate tools and briefly explain why each is useful. Focus on budget-friendly options where possible. Task/Problem: "${promptText}"` }] });
+        const payload = { contents: chatHistory };
+        const apiKey = ""; 
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const result = await response.json();
+        
+        spinner.classList.remove('active');
+        resultElement.style.display = 'block';
+
+        if (result.candidates && result.candidates.length > 0 &&
+            result.candidates[0].content && result.candidates[0].content.parts &&
+            result.candidates[0].content.parts.length > 0) {
+            const text = result.candidates[0].content.parts[0].text;
+            resultElement.innerHTML = text.replace(/\n/g, '<br>');
+        } else {
+            resultElement.innerHTML = 'Sorry, I could not get tool recommendations at this time. Please try again.';
+        }
+    } catch (error) {
+        spinner.classList.remove('active');
+        resultElement.style.display = 'block';
+        resultElement.innerHTML = `An error occurred: ${error.message}. Please try again.`;
+        console.error("Gemini API Error:", error);
+    }
+}
+
+async function getProjectTips() {
+    const button = event.target;
+    const projectName = button.dataset.projectName;
+    const resultElement = document.getElementById('project-tips-text');
+    const spinner = document.getElementById('project-tips-spinner');
+
+    spinner.classList.add('active');
+    resultElement.innerHTML = ''; // Clear previous results
+    resultElement.style.display = 'none';
+
+    try {
+        const chatHistory = [];
+        chatHistory.push({ role: "user", parts: [{ text: `Provide detailed step-by-step instructions, common pitfalls to avoid, and advanced tips for a DIY beginner working on "${projectName}" in a 1930s house. Assume they have basic car repair experience. Format as clear bullet points or numbered lists.` }] });
+        const payload = { contents: chatHistory };
+        const apiKey = ""; 
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const result = await response.json();
+
+        spinner.classList.remove('active');
+        resultElement.style.display = 'block';
+
+        if (result.candidates && result.candidates.length > 0 &&
+            result.candidates[0].content && result.candidates[0].content.parts &&
+            result.candidates[0].content.parts.length > 0) {
+            const text = result.candidates[0].content.parts[0].text;
+            resultElement.innerHTML = text.replace(/\n/g, '<br>');
+        } else {
+            resultElement.innerHTML = 'Sorry, I could not get project tips at this time. Please try again.';
+        }
+    } catch (error) {
+        spinner.classList.remove('active');
+        resultElement.style.display = 'block';
+        resultElement.innerHTML = `An error occurred: ${error.message}. Please try again.`;
+        console.error("Gemini API Error:", error);
+    }
+}
+</script>
+
+</body>
+</html>
