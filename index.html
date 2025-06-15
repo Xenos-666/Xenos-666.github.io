@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Automated Growery: A Premium Interactive Guide</title>
+    <title>The Modern Grower's Guide: A Premium Interactive Guide</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Chosen Palette: Refined Monochromatic with Purposeful Green Accent -->
-    <!-- Application Structure Plan: The core four-phase structure is maintained for its clarity. A new "Video Library" section has been added upfront to provide high-level visual overviews before diving into details. The UI/UX has been significantly elevated with a more rigorous Apple-inspired design: enhanced whitespace, a stricter type scale, refined animations, and gradient accents for a premium feel. This turns the guide into an application-like experience. -->
-    <!-- Visualization & Content Choices: The key addition is the video library with five specific, conceptualized videos, each with a custom placeholder thumbnail to communicate its purpose. This addresses the user's request for more video content directly. Icons are now exclusively clean SVGs. Card components have been redesigned with subtle gradients and improved hover states. The core interactive elements (timeline, charts) are retained but restyled to match the new, more sophisticated aesthetic. -->
+    <!-- Application Structure Plan: The core four-phase structure is maintained for its clarity. The Video Library has been removed to focus on a text-and-image-only experience. The UI/UX maintains the rigorous Apple-inspired design: enhanced whitespace, a stricter type scale, refined animations, and gradient accents for a premium feel. -->
+    <!-- Visualization & Content Choices: Icons are exclusively clean SVGs. Card components have been redesigned with subtle gradients and improved hover states. The core interactive elements (timeline, charts) are retained but restyled to match the sophisticated aesthetic. All video elements have been removed. -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
         body {
@@ -58,24 +58,6 @@
             transform: translateY(-5px);
             box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
         }
-        .gemini-modal {
-            transition: opacity 0.25s ease;
-        }
-        .gemini-modal-content {
-            transition: transform 0.25s ease;
-        }
-        .loader {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #16a34a;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
     </style>
 </head>
 <body class="text-gray-800 antialiased">
@@ -87,10 +69,9 @@
                      <svg class="h-6 w-6 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632m14.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632" />
                     </svg>
-                    <h1 class="text-lg font-bold text-gray-900 tracking-tight">Automated Growery</h1>
+                    <h1 class="text-lg font-bold text-gray-900 tracking-tight">The Modern Grower's Guide</h1>
                 </div>
                 <div class="hidden md:flex items-center space-x-8">
-                    <a href="#videos" class="nav-link text-gray-500 hover:text-gray-900 text-sm font-medium">Videos</a>
                     <a href="#legal" class="nav-link text-gray-500 hover:text-gray-900 text-sm font-medium">Compliance</a>
                     <a href="#equipment" class="nav-link text-gray-500 hover:text-gray-900 text-sm font-medium">System</a>
                     <a href="#cycle" class="nav-link text-gray-500 hover:text-gray-900 text-sm font-medium">Process</a>
@@ -106,75 +87,13 @@
                 <h2 class="text-5xl font-extrabold tracking-tight text-gray-900 sm:text-7xl">Cultivation, Perfected.</h2>
                 <p class="mt-6 max-w-3xl mx-auto text-xl leading-8 text-gray-600">An intelligent, automated approach to home cultivation. This guide unlocks the potential of your space, delivering consistent, high-quality results with precision engineering.</p>
                  <div class="mt-10 flex items-center justify-center gap-x-6">
-                    <a href="#videos" class="rounded-md bg-green-600 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600">Watch the Guides</a>
+                    <a href="#legal" class="rounded-md bg-green-600 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600">Start the Guide</a>
                     <a href="#equipment" class="text-sm font-semibold leading-6 text-gray-900">Explore the System <span aria-hidden="true">→</span></a>
                 </div>
             </div>
         </section>
         
-        <section id="videos" class="py-20 sm:py-24 bg-white">
-            <div class="container mx-auto px-6 lg:px-8">
-                 <div class="max-w-3xl mx-auto text-center">
-                    <h3 class="text-base font-semibold text-green-600 tracking-wide">Video Library</h3>
-                    <p class="mt-2 text-3xl font-bold text-gray-900 tracking-tight sm:text-4xl">Visual Learning Guides</p>
-                    <p class="mt-4 text-lg text-gray-600">Get started with these short, focused videos covering the most critical aspects of automated growing.</p>
-                </div>
-                <div class="mt-16 grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
-                    <div class="video-card">
-                        <div class="aspect-w-16 aspect-h-9 rounded-2xl overflow-hidden apple-shadow-lg group cursor-pointer card-hover-effect">
-                             <img src="https://placehold.co/1280x720/1e3a8a/ffffff?text=Understanding+Your+Local+Laws" onerror="this.onerror=null;this.src='https://placehold.co/1280x720/cccccc/333333?text=Video';" alt="Understanding Your Local Grow Laws" class="w-full h-full object-cover">
-                             <div class="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                <div class="w-16 h-16 bg-white/30 backdrop-blur-sm rounded-full flex items-center justify-center"><svg class="w-8 h-8 text-white ml-1" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg></div>
-                             </div>
-                        </div>
-                        <h4 class="mt-4 font-semibold text-gray-900">Understanding Local Grow Laws</h4>
-                        <p class="mt-1 text-sm text-gray-600">Learn the key questions to ask to ensure your home grow is fully compliant with regional regulations.</p>
-                    </div>
-                     <div class="video-card">
-                        <div class="aspect-w-16 aspect-h-9 rounded-2xl overflow-hidden apple-shadow-lg group cursor-pointer card-hover-effect">
-                             <img src="https://placehold.co/1280x720/374151/ffffff?text=Essential+Equipment+Rundown" onerror="this.onerror=null;this.src='https://placehold.co/1280x720/cccccc/333333?text=Video';" alt="Essential Equipment Rundown" class="w-full h-full object-cover">
-                              <div class="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                <div class="w-16 h-16 bg-white/30 backdrop-blur-sm rounded-full flex items-center justify-center"><svg class="w-8 h-8 text-white ml-1" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg></div>
-                             </div>
-                        </div>
-                        <h4 class="mt-4 font-semibold text-gray-900">Essential Equipment Rundown</h4>
-                        <p class="mt-1 text-sm text-gray-600">A visual tour of the 6 key components of the automated system, from the tent to the controller.</p>
-                    </div>
-                     <div class="video-card">
-                        <div class="aspect-w-16 aspect-h-9 rounded-2xl overflow-hidden apple-shadow-lg group cursor-pointer card-hover-effect">
-                             <img src="https://placehold.co/1280x720/15803d/ffffff?text=The+5+Stages+of+Growth" onerror="this.onerror=null;this.src='https://placehold.co/1280x720/cccccc/333333?text=Video';" alt="The 5 Stages of Growth" class="w-full h-full object-cover">
-                              <div class="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                <div class="w-16 h-16 bg-white/30 backdrop-blur-sm rounded-full flex items-center justify-center"><svg class="w-8 h-8 text-white ml-1" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg></div>
-                             </div>
-                        </div>
-                        <h4 class="mt-4 font-semibold text-gray-900">The 5 Stages of Growth</h4>
-                        <p class="mt-1 text-sm text-gray-600">From a tiny seed to a full harvest, see what to expect in each phase of the plant's lifecycle.</p>
-                    </div>
-                     <div class="video-card">
-                        <div class="aspect-w-16 aspect-h-9 rounded-2xl overflow-hidden apple-shadow-lg group cursor-pointer card-hover-effect">
-                             <img src="https://placehold.co/1280x720/b91c1c/ffffff?text=Mastering+Nutrients+&+pH" onerror="this.onerror=null;this.src='https://placehold.co/1280x720/cccccc/333333?text=Video';" alt="Mastering Nutrients & pH" class="w-full h-full object-cover">
-                              <div class="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                <div class="w-16 h-16 bg-white/30 backdrop-blur-sm rounded-full flex items-center justify-center"><svg class="w-8 h-8 text-white ml-1" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg></div>
-                             </div>
-                        </div>
-                        <h4 class="mt-4 font-semibold text-gray-900">Mastering Nutrients & pH</h4>
-                        <p class="mt-1 text-sm text-gray-600">Learn the basics of feeding your plants and why maintaining the correct pH is critical for nutrient absorption.</p>
-                    </div>
-                    <div class="video-card">
-                        <div class="aspect-w-16 aspect-h-9 rounded-2xl overflow-hidden apple-shadow-lg group cursor-pointer card-hover-effect">
-                             <img src="https://placehold.co/1280x720/f59e0b/ffffff?text=Top+5+Beginner+Mistakes" onerror="this.onerror=null;this.src='https://placehold.co/1280x720/cccccc/333333?text=Video';" alt="Top 5 Beginner Mistakes to Avoid" class="w-full h-full object-cover">
-                              <div class="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                <div class="w-16 h-16 bg-white/30 backdrop-blur-sm rounded-full flex items-center justify-center"><svg class="w-8 h-8 text-white ml-1" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg></div>
-                             </div>
-                        </div>
-                        <h4 class="mt-4 font-semibold text-gray-900">Top 5 Beginner Mistakes</h4>
-                        <p class="mt-1 text-sm text-gray-600">Avoid common pitfalls like overwatering, light burn, and improper training with these simple tips.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="legal" class="py-20 sm:py-24">
+        <section id="legal" class="py-20 sm:py-24 bg-white">
             <div class="container mx-auto px-6 lg:px-8">
                 <div class="max-w-3xl mx-auto text-center">
                     <h3 class="text-base font-semibold text-green-600 tracking-wide">Phase 1</h3>
@@ -202,7 +121,7 @@
             </div>
         </section>
 
-        <section id="equipment" class="py-20 sm:py-24 bg-white">
+        <section id="equipment" class="py-20 sm:py-24">
             <div class="container mx-auto px-6 lg:px-8">
                 <div class="max-w-3xl mx-auto text-center">
                     <h3 class="text-base font-semibold text-green-600 tracking-wide">Phase 2</h3>
@@ -210,38 +129,10 @@
                     <p class="mt-4 text-lg text-gray-600">Precision-engineered components working in harmony. This is the hardware that powers consistent, high-quality results.</p>
                 </div>
                 <div id="equipment-grid" class="mt-16 grid gap-8 md:grid-cols-2 lg:grid-cols-3"></div>
-                <div class="mt-16 bg-white p-8 rounded-2xl border border-gray-200/80 apple-shadow">
-                    <h4 class="text-2xl font-bold text-center mb-6 text-gray-900">✨ Smart Strain Recommender</h4>
-                    <div class="grid md:grid-cols-2 gap-6">
-                        <div>
-                            <label for="grow-space" class="block text-sm font-medium text-gray-700">Grow Space</label>
-                            <select id="grow-space" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md">
-                                <option>Compact (Tent < 4'x4')</option>
-                                <option>Standard (Tent 4'x4' or 5'x5')</option>
-                                <option>Large (Room or large tent)</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label for="desired-effect" class="block text-sm font-medium text-gray-700">Desired Effect</label>
-                            <select id="desired-effect" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md">
-                                <option>Relaxing / Calming</option>
-                                <option>Uplifting / Energetic</option>
-                                <option>Balanced / Hybrid</option>
-                                <option>High THC / Potent</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="mt-6 text-center">
-                        <button id="strain-recommender-btn" class="inline-flex items-center rounded-md bg-green-600 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-green-500">
-                            Get Recommendations
-                        </button>
-                    </div>
-                    <div id="strain-recommender-result" class="mt-6 hidden"></div>
-                </div>
             </div>
         </section>
 
-        <section id="cycle" class="py-20 sm:py-24">
+        <section id="cycle" class="py-20 sm:py-24 bg-white">
             <div class="container mx-auto px-6 lg:px-8">
                  <div class="max-w-3xl mx-auto text-center">
                     <h3 class="text-base font-semibold text-green-600 tracking-wide">Phase 3</h3>
@@ -254,12 +145,6 @@
                     <div class="grid lg:grid-cols-2 gap-12 items-start">
                         <div class="bg-white p-8 rounded-2xl border border-gray-200/80 apple-shadow min-h-[400px]">
                              <div id="cycle-content"></div>
-                             <div class="mt-6">
-                                <button id="daily-checklist-btn" class="w-full inline-flex justify-center items-center rounded-md bg-green-50 px-4 py-2 text-sm font-medium text-green-700 hover:bg-green-100">
-                                    ✨ Generate Daily Checklist
-                                </button>
-                                <div id="daily-checklist-result" class="mt-4 text-sm text-gray-600 hidden"></div>
-                            </div>
                         </div>
                         <div id="cycle-image-container" class="lg:sticky top-32">
                            <div class="aspect-w-1 aspect-h-1 rounded-2xl overflow-hidden apple-shadow-lg">
@@ -277,7 +162,7 @@
             </div>
         </section>
 
-        <section id="clinic" class="py-20 sm:py-24 bg-white">
+        <section id="clinic" class="py-20 sm:py-24">
             <div class="container mx-auto px-6 lg:px-8">
                 <div class="max-w-3xl mx-auto text-center">
                     <h3 class="text-base font-semibold text-green-600 tracking-wide">Phase 4</h3>
@@ -291,18 +176,6 @@
                     <div id="solution-display" class="mt-8 p-8 bg-green-50 rounded-2xl border border-green-200 hidden">
                         <h4 id="solution-title" class="text-xl font-semibold text-green-900"></h4>
                         <p id="solution-text" class="mt-2 text-green-800"></p>
-                    </div>
-                    
-                    <div class="mt-12 text-center">
-                        <div class="p-8 bg-white rounded-2xl border border-gray-200/80 apple-shadow">
-                            <h4 class="text-2xl font-bold text-gray-900">✨ Ask Gemini About Your Plant</h4>
-                            <p class="mt-2 text-gray-600">Describe your plant's issue below for an AI-powered diagnosis.</p>
-                            <textarea id="gemini-clinic-input" class="mt-4 w-full p-2 border border-gray-300 rounded-md" rows="4" placeholder="e.g., 'My lower leaves are turning yellow and have brown spots. The plant is in the flowering stage.'"></textarea>
-                            <button id="gemini-clinic-btn" class="mt-4 inline-flex items-center rounded-md bg-green-600 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-green-500">
-                                Get AI Diagnosis
-                            </button>
-                            <div id="gemini-clinic-result" class="mt-6 text-left hidden"></div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -347,8 +220,6 @@
                 ]
             }
         };
-        
-        let currentStage = 'germination';
 
         document.addEventListener('DOMContentLoaded', () => {
             const equipmentGrid = document.getElementById('equipment-grid');
@@ -378,90 +249,15 @@
                 symptomCategories.appendChild(button);
             });
             
-            document.getElementById('gemini-clinic-btn').addEventListener('click', handleGeminiClinic);
-            document.getElementById('strain-recommender-btn').addEventListener('click', handleStrainRecommender);
-            document.getElementById('daily-checklist-btn').addEventListener('click', handleDailyChecklist);
-            
             setupCharts();
             updateCycleContent(appData.growCycle[0].id);
             displayProblems(appData.clinic.categories[0]);
             setupScrollSpy();
         });
 
-        async function callGemini(prompt) {
-            const apiKey = "";
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-            const payload = {
-                contents: [{ role: "user", parts: [{ text: prompt }] }]
-            };
-            try {
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                if (!response.ok) {
-                    throw new Error(`API call failed with status: ${response.status}`);
-                }
-                const result = await response.json();
-                if (result.candidates && result.candidates.length > 0 &&
-                    result.candidates[0].content && result.candidates[0].content.parts &&
-                    result.candidates[0].content.parts.length > 0) {
-                    return result.candidates[0].content.parts[0].text;
-                } else {
-                    return "Sorry, I couldn't generate a response. The API returned an unexpected result.";
-                }
-            } catch (error) {
-                console.error("Gemini API call error:", error);
-                return "An error occurred while contacting the Gemini API. Please check the console for details.";
-            }
-        }
-
-        async function handleGeminiClinic() {
-            const input = document.getElementById('gemini-clinic-input').value;
-            const resultDiv = document.getElementById('gemini-clinic-result');
-            if (!input) {
-                resultDiv.innerHTML = '<p class="text-red-500">Please describe the issue with your plant.</p>';
-                resultDiv.classList.remove('hidden');
-                return;
-            }
-            resultDiv.innerHTML = '<div class="flex justify-center"><div class="loader"></div></div>';
-            resultDiv.classList.remove('hidden');
-
-            const prompt = `As a master cannabis grower, diagnose the following user-described plant issue and provide a step-by-step solution. Be encouraging and clear. Issue: "${input}"`;
-            const response = await callGemini(prompt);
-            resultDiv.innerHTML = `<p>${response.replace(/\n/g, '<br>')}</p>`;
-        }
-        
-        async function handleStrainRecommender() {
-            const growSpace = document.getElementById('grow-space').value;
-            const desiredEffect = document.getElementById('desired-effect').value;
-            const resultDiv = document.getElementById('strain-recommender-result');
-            
-            resultDiv.innerHTML = '<div class="flex justify-center"><div class="loader"></div></div>';
-            resultDiv.classList.remove('hidden');
-            
-            const prompt = `I am a home cannabis grower with a ${growSpace} space. I am looking for a strain that provides a ${desiredEffect} effect. Please recommend 3 specific strains that would be suitable for my setup. For each strain, explain why it's a good choice for my space and desired effect.`;
-            const response = await callGemini(prompt);
-            resultDiv.innerHTML = `<p>${response.replace(/\n/g, '<br>')}</p>`;
-        }
-
-        async function handleDailyChecklist() {
-            const resultDiv = document.getElementById('daily-checklist-result');
-            resultDiv.innerHTML = '<div class="flex justify-center"><div class="loader"></div></div>';
-            resultDiv.classList.remove('hidden');
-
-            const stageName = appData.growCycle.find(s => s.id === currentStage).name;
-            const prompt = `Generate a simple, actionable daily checklist for a cannabis plant in the ${stageName} stage. Include 3-5 key tasks or observations. Format it as a simple bulleted list.`;
-            const response = await callGemini(prompt);
-            resultDiv.innerHTML = `<p>${response.replace(/\n/g, '<br>')}</p>`;
-        }
-
         function updateCycleContent(stageId) {
-            currentStage = stageId;
             const stageData = appData.growCycle.find(s => s.id === stageId);
             document.getElementById('cycle-content').innerHTML = stageData.content;
-            document.getElementById('daily-checklist-result').classList.add('hidden');
             
             const cycleImage = document.getElementById('cycle-image');
             cycleImage.style.opacity = '0';
@@ -548,3 +344,4 @@
     </script>
 </body>
 </html>
+
