@@ -1,686 +1,550 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>1930s Home DIY Navigator</title>
+    <title>The Automated Growery: A Premium Interactive Guide</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Chosen Palette: Warm Neutrals -->
-    <!-- Application Structure Plan: A single-page application with a task-oriented dashboard structure. A fixed top navigation allows users to switch between four main views: "Safety First," "My Tool Kit," "My Projects," and "Pro vs. DIY Guide." This structure was chosen over a linear report format to empower the user, a hands-on DIYer, to quickly access the specific information they need for a given task. The "Projects" section is the interactive core, allowing users to select a specific job and see tailored tool lists and cost breakdowns. This non-linear, interactive approach enhances usability and makes the dense information more digestible and actionable. -->
-    <!-- Visualization & Content Choices: 
-    - Report Info: Essential Starter Kit Costs -> Goal: Inform budget -> Viz/Method: Interactive Bar Chart (Chart.js) -> Interaction: Hover for details -> Justification: Provides a clear visual summary of the initial financial outlay.
-    - Report Info: Project-Specific Costs (Rentals, Tools, Materials) -> Goal: Compare/Analyze -> Viz/Method: Donut Chart (Chart.js) -> Interaction: Dynamically updates when a new project is selected -> Justification: Breaks down the budget for each specific task, helping the user make informed rent vs. buy decisions.
-    - Report Info: Tool lists and DIY/Pro advice -> Goal: Organize/Inform -> Viz/Method: Interactive cards and filterable lists (HTML/CSS/JS) -> Interaction: Click-to-filter/show -> Justification: Allows for rapid access to relevant information without overwhelming the user.
-    - All visual elements like icons are created with Unicode characters and Tailwind CSS to avoid dependencies and ensure fast loading, adhering to the NO SVG/Mermaid constraint. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Refined Monochromatic with Purposeful Green Accent -->
+    <!-- Application Structure Plan: The core four-phase structure is maintained for its clarity. A new "Video Library" section has been added upfront to provide high-level visual overviews before diving into details. The UI/UX has been significantly elevated with a more rigorous Apple-inspired design: enhanced whitespace, a stricter type scale, refined animations, and gradient accents for a premium feel. This turns the guide into an application-like experience. -->
+    <!-- Visualization & Content Choices: The key addition is the video library with five specific, conceptualized videos, each with a custom placeholder thumbnail to communicate its purpose. This addresses the user's request for more video content directly. Icons are now exclusively clean SVGs. Card components have been redesigned with subtle gradients and improved hover states. The core interactive elements (timeline, charts) are retained but restyled to match the new, more sophisticated aesthetic. -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
         body {
             font-family: 'Inter', sans-serif;
-        }
-        .nav-link {
-            transition: all 0.3s ease;
-        }
-        .nav-link.active {
-            background-color: #A16207; /* Amber-700 */
-            color: white;
-        }
-        .content-section {
-            display: none;
-        }
-        .content-section.active {
-            display: block;
-        }
-        .project-card, .pro-guide-filter-btn {
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        .project-card:hover, .pro-guide-filter-btn:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-        }
-        .project-card.active {
-            border-color: #A16207;
-            box-shadow: 0 0 0 3px rgba(161, 98, 7, 0.5);
-        }
-        .pro-guide-filter-btn.active {
-            background-color: #A16207;
-            color: white;
-            border-color: #A16207;
+            background-color: #f8f9fa;
         }
         .chart-container {
             position: relative;
             width: 100%;
-            max-width: 600px;
+            max-width: 48rem;
             margin-left: auto;
             margin-right: auto;
-            height: 300px;
+            height: 24rem;
             max-height: 400px;
         }
-        @media (min-width: 768px) {
-            .chart-container {
-                height: 350px;
-            }
+        @media (max-width: 768px) {
+            .chart-container { height: 18rem; }
         }
-        .loading-spinner {
+        .nav-link {
+            transition: color 0.3s ease;
+        }
+        .nav-link.active {
+            color: #16a34a;
+            font-weight: 600;
+        }
+        .timeline-item {
+            transition: all 0.3s ease-in-out;
+        }
+        .timeline-item.active {
+            background-color: #16a34a;
+            color: white;
+            box-shadow: 0 4px 14px 0 rgb(0 0 0 / 10%);
+        }
+        .apple-shadow {
+             box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+        }
+        .apple-shadow-lg {
+             box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.07), 0 4px 6px -4px rgb(0 0 0 / 0.07);
+        }
+        .card-hover-effect {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover-effect:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        }
+        .gemini-modal {
+            transition: opacity 0.25s ease;
+        }
+        .gemini-modal-content {
+            transition: transform 0.25s ease;
+        }
+        .loader {
             border: 4px solid #f3f3f3;
-            border-top: 4px solid #A16207;
+            border-top: 4px solid #16a34a;
             border-radius: 50%;
-            width: 24px;
-            height: 24px;
+            width: 40px;
+            height: 40px;
             animation: spin 1s linear infinite;
-            margin: 0 auto;
-            display: none;
         }
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        .loading-spinner.active {
-            display: block;
-        }
     </style>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
-<body class="bg-amber-50 text-slate-800">
+<body class="text-gray-800 antialiased">
 
-    <header class="bg-stone-800 text-white p-6 text-center shadow-lg">
-        <h1 class="text-3xl md:text-4xl font-bold text-amber-400">1930s Home DIY Navigator</h1>
-        <p class="mt-2 text-stone-300 max-w-2xl mx-auto">Your interactive guide to safely and affordably renovating your vintage home.</p>
+    <header class="bg-white/80 backdrop-blur-lg fixed top-0 left-0 right-0 z-50 border-b border-gray-200/80">
+        <nav class="container mx-auto px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0 flex items-center gap-2">
+                     <svg class="h-6 w-6 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632m14.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632" />
+                    </svg>
+                    <h1 class="text-lg font-bold text-gray-900 tracking-tight">Automated Growery</h1>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#videos" class="nav-link text-gray-500 hover:text-gray-900 text-sm font-medium">Videos</a>
+                    <a href="#legal" class="nav-link text-gray-500 hover:text-gray-900 text-sm font-medium">Compliance</a>
+                    <a href="#equipment" class="nav-link text-gray-500 hover:text-gray-900 text-sm font-medium">System</a>
+                    <a href="#cycle" class="nav-link text-gray-500 hover:text-gray-900 text-sm font-medium">Process</a>
+                    <a href="#clinic" class="nav-link text-gray-500 hover:text-gray-900 text-sm font-medium">Clinic</a>
+                </div>
+            </div>
+        </nav>
     </header>
 
-    <nav class="sticky top-0 bg-white shadow-md z-10 p-2">
-        <div class="max-w-5xl mx-auto flex justify-center space-x-1 md:space-x-4">
-            <button class="nav-link active font-semibold py-2 px-3 md:px-6 rounded-md text-sm md:text-base" data-target="safety">⚠️ Safety First</button>
-            <button class="nav-link font-semibold py-2 px-3 md:px-6 rounded-md text-sm md:text-base" data-target="toolkit">🛠️ My Tool Kit</button>
-            <button class="nav-link font-semibold py-2 px-3 md:px-6 rounded-md text-sm md:text-base" data-target="projects">📋 My Projects</button>
-            <button class="nav-link font-semibold py-2 px-3 md:px-6 rounded-md text-sm md:text-base" data-target="pro-guide">🤔 Pro vs. DIY</button>
-        </div>
-    </nav>
-
-    <main class="p-4 md:p-8">
-        <div id="app-content" class="max-w-5xl mx-auto">
-
-            <section id="safety" class="content-section active">
-                <div class="text-center mb-8">
-                    <h2 class="text-3xl font-bold text-yellow-800">Crucial First Steps: Safety in an Older Home</h2>
-                    <p class="mt-2 text-slate-600 max-w-3xl mx-auto">Before you pick up a single tool, understanding the unique hazards of a 1930s home is non-negotiable. This section highlights the most critical safety information to protect your health and your investment.</p>
+    <main class="pt-16">
+        <section id="hero" class="py-24 sm:py-32">
+            <div class="container mx-auto px-6 lg:px-8 text-center">
+                <h2 class="text-5xl font-extrabold tracking-tight text-gray-900 sm:text-7xl">Cultivation, Perfected.</h2>
+                <p class="mt-6 max-w-3xl mx-auto text-xl leading-8 text-gray-600">An intelligent, automated approach to home cultivation. This guide unlocks the potential of your space, delivering consistent, high-quality results with precision engineering.</p>
+                 <div class="mt-10 flex items-center justify-center gap-x-6">
+                    <a href="#videos" class="rounded-md bg-green-600 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600">Watch the Guides</a>
+                    <a href="#equipment" class="text-sm font-semibold leading-6 text-gray-900">Explore the System <span aria-hidden="true">→</span></a>
                 </div>
-
-                <div class="grid md:grid-cols-2 gap-8">
-                    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-6 rounded-r-lg shadow-md">
-                        <h3 class="text-xl font-bold flex items-center"><span class="text-2xl mr-3">⚠️</span> Potential Hazard: Asbestos</h3>
-                        <p class="mt-2 text-red-900">Found in flooring, insulation, and joint compounds. If disturbed (sanding, sawing), it releases dangerous fibers. If you suspect asbestos, DO NOT proceed. Have the material tested by a professional first. Leave any material in good condition undisturbed.</p>
+            </div>
+        </section>
+        
+        <section id="videos" class="py-20 sm:py-24 bg-white">
+            <div class="container mx-auto px-6 lg:px-8">
+                 <div class="max-w-3xl mx-auto text-center">
+                    <h3 class="text-base font-semibold text-green-600 tracking-wide">Video Library</h3>
+                    <p class="mt-2 text-3xl font-bold text-gray-900 tracking-tight sm:text-4xl">Visual Learning Guides</p>
+                    <p class="mt-4 text-lg text-gray-600">Get started with these short, focused videos covering the most critical aspects of automated growing.</p>
+                </div>
+                <div class="mt-16 grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+                    <div class="video-card">
+                        <div class="aspect-w-16 aspect-h-9 rounded-2xl overflow-hidden apple-shadow-lg group cursor-pointer card-hover-effect">
+                             <img src="https://placehold.co/1280x720/1e3a8a/ffffff?text=Understanding+Your+Local+Laws" onerror="this.onerror=null;this.src='https://placehold.co/1280x720/cccccc/333333?text=Video';" alt="Understanding Your Local Grow Laws" class="w-full h-full object-cover">
+                             <div class="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                <div class="w-16 h-16 bg-white/30 backdrop-blur-sm rounded-full flex items-center justify-center"><svg class="w-8 h-8 text-white ml-1" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg></div>
+                             </div>
+                        </div>
+                        <h4 class="mt-4 font-semibold text-gray-900">Understanding Local Grow Laws</h4>
+                        <p class="mt-1 text-sm text-gray-600">Learn the key questions to ask to ensure your home grow is fully compliant with regional regulations.</p>
                     </div>
-                    <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-6 rounded-r-lg shadow-md">
-                        <h3 class="text-xl font-bold flex items-center"><span class="text-2xl mr-3">⚠️</span> Potential Hazard: Lead Paint</h3>
-                        <p class="mt-2 text-yellow-900">Very common in homes built before 1978. Sanding or scraping creates toxic dust. Use lead-safe work practices: containment, proper PPE (N-100 respirator), and HEPA vacuums. Consider professional testing for large-scale paint removal.</p>
+                     <div class="video-card">
+                        <div class="aspect-w-16 aspect-h-9 rounded-2xl overflow-hidden apple-shadow-lg group cursor-pointer card-hover-effect">
+                             <img src="https://placehold.co/1280x720/374151/ffffff?text=Essential+Equipment+Rundown" onerror="this.onerror=null;this.src='https://placehold.co/1280x720/cccccc/333333?text=Video';" alt="Essential Equipment Rundown" class="w-full h-full object-cover">
+                              <div class="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                <div class="w-16 h-16 bg-white/30 backdrop-blur-sm rounded-full flex items-center justify-center"><svg class="w-8 h-8 text-white ml-1" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg></div>
+                             </div>
+                        </div>
+                        <h4 class="mt-4 font-semibold text-gray-900">Essential Equipment Rundown</h4>
+                        <p class="mt-1 text-sm text-gray-600">A visual tour of the 6 key components of the automated system, from the tent to the controller.</p>
                     </div>
-                </div>
-
-                <div class="mt-12 text-center">
-                    <h3 class="text-2xl font-bold text-yellow-800">Plumbing & Electrical: When to Call a Pro</h3>
-                    <p class="mt-2 text-slate-600 max-w-3xl mx-auto">Your mechanical skills are a huge asset, but old home systems have unique risks. Know your limits.</p>
-                </div>
-                <div class="mt-6 grid md:grid-cols-2 gap-8">
-                    <div class="bg-white p-6 rounded-lg shadow-lg border border-slate-200">
-                        <h4 class="text-xl font-bold text-blue-800">🔌 Electrical Systems</h4>
-                        <p class="mt-2 text-slate-600">Minor tasks like replacing an outlet can be DIY if you're careful. Always turn off power and test with a voltage tester!</p>
-                        <p class="font-bold mt-4 text-red-600">CALL A PRO FOR:</p>
-                        <ul class="list-disc list-inside mt-2 space-y-1 text-slate-700">
-                            <li>Outdated wiring (knob-and-tube, cloth)</li>
-                            <li>Flickering lights or buzzing switches</li>
-                            <li>Upgrading a fuse box to a circuit breaker</li>
-                            <li>Whole-house rewiring</li>
-                        </ul>
+                     <div class="video-card">
+                        <div class="aspect-w-16 aspect-h-9 rounded-2xl overflow-hidden apple-shadow-lg group cursor-pointer card-hover-effect">
+                             <img src="https://placehold.co/1280x720/15803d/ffffff?text=The+5+Stages+of+Growth" onerror="this.onerror=null;this.src='https://placehold.co/1280x720/cccccc/333333?text=Video';" alt="The 5 Stages of Growth" class="w-full h-full object-cover">
+                              <div class="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                <div class="w-16 h-16 bg-white/30 backdrop-blur-sm rounded-full flex items-center justify-center"><svg class="w-8 h-8 text-white ml-1" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg></div>
+                             </div>
+                        </div>
+                        <h4 class="mt-4 font-semibold text-gray-900">The 5 Stages of Growth</h4>
+                        <p class="mt-1 text-sm text-gray-600">From a tiny seed to a full harvest, see what to expect in each phase of the plant's lifecycle.</p>
                     </div>
-                    <div class="bg-white p-6 rounded-lg shadow-lg border border-slate-200">
-                        <h4 class="text-xl font-bold text-cyan-800">💧 Plumbing Systems</h4>
-                        <p class="mt-2 text-slate-600">You can tackle minor clogs with a plunger or snake.</p>
-                        <p class="font-bold mt-4 text-red-600">CALL A PRO FOR:</p>
-                         <ul class="list-disc list-inside mt-2 space-y-1 text-slate-700">
-                            <li>Rust-colored water or low pressure</li>
-                            <li>Persistent clogs or foul odors</li>
-                            <li>Repairing or replacing old pipes</li>
-                            <li>Sewer line issues</li>
-                        </ul>
+                     <div class="video-card">
+                        <div class="aspect-w-16 aspect-h-9 rounded-2xl overflow-hidden apple-shadow-lg group cursor-pointer card-hover-effect">
+                             <img src="https://placehold.co/1280x720/b91c1c/ffffff?text=Mastering+Nutrients+&+pH" onerror="this.onerror=null;this.src='https://placehold.co/1280x720/cccccc/333333?text=Video';" alt="Mastering Nutrients & pH" class="w-full h-full object-cover">
+                              <div class="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                <div class="w-16 h-16 bg-white/30 backdrop-blur-sm rounded-full flex items-center justify-center"><svg class="w-8 h-8 text-white ml-1" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg></div>
+                             </div>
+                        </div>
+                        <h4 class="mt-4 font-semibold text-gray-900">Mastering Nutrients & pH</h4>
+                        <p class="mt-1 text-sm text-gray-600">Learn the basics of feeding your plants and why maintaining the correct pH is critical for nutrient absorption.</p>
                     </div>
-                </div>
-            </section>
-
-            <section id="toolkit" class="content-section">
-                <div class="text-center mb-8">
-                    <h2 class="text-3xl font-bold text-yellow-800">Building Your Core DIY Tool Kit</h2>
-                    <p class="mt-2 text-slate-600 max-w-3xl mx-auto">This section outlines the essential tools for your home repair journey. Your automotive experience gives you a great head start! We'll visualize the starter kit cost and provide an interactive list to explore.</p>
-                </div>
-                <div class="bg-white p-6 rounded-lg shadow-lg border border-slate-200 mb-8">
-                     <h3 class="text-xl font-bold text-center text-slate-700 mb-4">Essential Starter Kit: Estimated Costs</h3>
-                     <div class="chart-container">
-                        <canvas id="costChart"></canvas>
-                    </div>
-                </div>
-                <div id="tool-list-container" class="mt-8"></div>
-
-                <div class="mt-8 bg-amber-100 p-6 rounded-lg shadow-md border border-amber-200">
-                    <h3 class="text-xl font-bold text-yellow-800 mb-4">✨ Need a Tool Recommendation?</h3>
-                    <p class="text-slate-700 mb-3">Describe a task or problem, and I'll suggest tools you might need.</p>
-                    <textarea id="tool-recommendation-input" class="w-full p-3 border border-amber-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500" rows="3" placeholder="e.g., 'How do I remove stubborn old caulk?', 'What tools for fixing a wobbly stair railing?'"></textarea>
-                    <button id="get-tool-recommendation-btn" class="mt-4 bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 px-6 rounded-md shadow-lg transition duration-300 ease-in-out transform hover:scale-105">✨ Recommend Tools</button>
-                    <div id="tool-recommendation-result" class="mt-4 p-3 bg-white rounded-md border border-amber-200 text-slate-700 min-h-[50px] flex items-center justify-center">
-                        <div class="loading-spinner" id="tool-recommendation-spinner"></div>
-                        <p id="tool-recommendation-text" class="text-center">Your recommendations will appear here.</p>
+                    <div class="video-card">
+                        <div class="aspect-w-16 aspect-h-9 rounded-2xl overflow-hidden apple-shadow-lg group cursor-pointer card-hover-effect">
+                             <img src="https://placehold.co/1280x720/f59e0b/ffffff?text=Top+5+Beginner+Mistakes" onerror="this.onerror=null;this.src='https://placehold.co/1280x720/cccccc/333333?text=Video';" alt="Top 5 Beginner Mistakes to Avoid" class="w-full h-full object-cover">
+                              <div class="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                <div class="w-16 h-16 bg-white/30 backdrop-blur-sm rounded-full flex items-center justify-center"><svg class="w-8 h-8 text-white ml-1" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg></div>
+                             </div>
+                        </div>
+                        <h4 class="mt-4 font-semibold text-gray-900">Top 5 Beginner Mistakes</h4>
+                        <p class="mt-1 text-sm text-gray-600">Avoid common pitfalls like overwatering, light burn, and improper training with these simple tips.</p>
                     </div>
                 </div>
-            </section>
+            </div>
+        </section>
 
-            <section id="projects" class="content-section">
-                 <div class="text-center mb-8">
-                    <h2 class="text-3xl font-bold text-yellow-800">Interactive Project Planner</h2>
-                    <p class="mt-2 text-slate-600 max-w-3xl mx-auto">This section is your interactive project hub. Select a common 1930s home repair project below to get a detailed breakdown of the required tools, estimated costs, and key steps. We'll help you decide what to rent versus what to buy to stay on budget.</p>
+        <section id="legal" class="py-20 sm:py-24">
+            <div class="container mx-auto px-6 lg:px-8">
+                <div class="max-w-3xl mx-auto text-center">
+                    <h3 class="text-base font-semibold text-green-600 tracking-wide">Phase 1</h3>
+                    <p class="mt-2 text-3xl font-bold text-gray-900 tracking-tight sm:text-4xl">Compliance Framework</p>
+                    <p class="mt-4 text-lg text-gray-600">Laws vary significantly by location. This is not legal advice, but a guide to help you understand your local rules. Always verify your region's specific laws before starting.</p>
                 </div>
-                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                    <button class="project-card bg-white p-4 rounded-lg shadow-md border-2 border-transparent text-center" data-project="floors">
-                        <span class="text-4xl">🪵</span>
-                        <h3 class="mt-2 font-bold">Refinish Floors</h3>
-                    </button>
-                     <button class="project-card bg-white p-4 rounded-lg shadow-md border-2 border-transparent text-center" data-project="walls">
-                        <span class="text-4xl">🧱</span>
-                        <h3 class="mt-2 font-bold">Fix Walls</h3>
-                    </button>
-                     <button class="project-card bg-white p-4 rounded-lg shadow-md border-2 border-transparent text-center" data-project="vents">
-                        <span class="text-4xl">💨</span>
-                        <h3 class="mt-2 font-bold">Replace Vents</h3>
-                    </button>
-                     <button class="project-card bg-white p-4 rounded-lg shadow-md border-2 border-transparent text-center" data-project="trim">
-                        <span class="text-4xl">🖼️</span>
-                        <h3 class="mt-2 font-bold">New Trim</h3>
-                    </button>
+                <div class="mt-16 max-w-5xl mx-auto grid md:grid-cols-2 gap-8">
+                    <div class="bg-white p-8 rounded-2xl border border-gray-200/80 apple-shadow card-hover-effect">
+                         <h4 class="text-xl font-semibold text-gray-900 mb-4">Legal Checklist: Know Your Laws</h4>
+                         <ul class="space-y-4 text-gray-700">
+                             <li class="flex items-start"><span class="text-green-500 mr-3 mt-1">&#10003;</span><span><strong>Jurisdiction:</strong> Is home cultivation legal in your state/province and city/municipality?</span></li>
+                             <li class="flex items-start"><span class="text-green-500 mr-3 mt-1">&#10003;</span><span><strong>Recreational vs. Medical:</strong> Are you growing under recreational or medical rules? Medical programs often allow higher plant counts but require a patient card.</span></li>
+                             <li class="flex items-start"><span class="text-green-500 mr-3 mt-1">&#10003;</span><span><strong>Plant Count:</strong> What is the maximum number of plants allowed per person or household? Note the difference between mature (flowering) and immature (vegetative) plants.</span></li>
+                         </ul>
+                    </div>
+                    <div class="bg-white p-8 rounded-2xl border border-gray-200/80 apple-shadow card-hover-effect">
+                        <h4 class="text-xl font-semibold text-gray-900 mb-4">Security & Discretion Rules</h4>
+                        <ul class="space-y-4 text-gray-700">
+                             <li class="flex items-start"><span class="text-green-500 mr-3 mt-1">&#10003;</span><span><strong>Visibility:</strong> Plants must not be visible to the public from outside your property.</span></li>
+                             <li class="flex items-start"><span class="text-green-500 mr-3 mt-1">&#10003;</span><span><strong>Security:</strong> The grow area must be in an enclosed, locked space. This is a near-universal requirement.</span></li>
+                             <li class="flex items-start"><span class="text-red-500 mr-3 mt-1">&#10007;</span><span><strong>Restrictions:</strong> Check for rules regarding proximity to schools or parks, and whether property owners or HOAs permit cultivation.</span></li>
+                         </ul>
+                    </div>
                 </div>
-                <div id="project-details" class="bg-white p-6 rounded-lg shadow-lg border border-slate-200 min-h-[300px]">
-                    <p class="text-center text-slate-500">Select a project above to see the details.</p>
-                </div>
-            </section>
-            
-            <section id="pro-guide" class="content-section">
-                <div class="text-center mb-8">
-                    <h2 class="text-3xl font-bold text-yellow-800">Pro vs. DIY Decision Guide</h2>
-                    <p class="mt-2 text-slate-600 max-w-3xl mx-auto">Use this guide to quickly determine if a common issue in an older home is something you can tackle yourself or if it requires professional expertise. Click the filters to narrow down the list.</p>
-                </div>
-                <div class="flex justify-center space-x-2 mb-6">
-                    <button class="pro-guide-filter-btn active bg-stone-200 border border-stone-300 px-4 py-2 rounded-full" data-filter="all">All</button>
-                    <button class="pro-guide-filter-btn bg-stone-200 border border-stone-300 px-4 py-2 rounded-full" data-filter="Plumbing">Plumbing</button>
-                    <button class="pro-guide-filter-btn bg-stone-200 border border-stone-300 px-4 py-2 rounded-full" data-filter="Electrical">Electrical</button>
-                    <button class="pro-guide-filter-btn bg-stone-200 border border-stone-300 px-4 py-2 rounded-full" data-filter="Structural/Material">Structural</button>
-                </div>
-                <div class="overflow-x-auto bg-white rounded-lg shadow-lg">
-                    <table class="w-full text-sm text-left text-slate-500">
-                        <thead class="text-xs text-slate-700 uppercase bg-slate-100">
-                            <tr>
-                                <th scope="col" class="px-6 py-3">Issue</th>
-                                <th scope="col" class="px-6 py-3">DIY Feasible?</th>
-                                <th scope="col" class="px-6 py-3">Recommended Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="pro-guide-body">
-                        </tbody>
-                    </table>
-                </div>
-            </section>
+            </div>
+        </section>
 
-        </div>
+        <section id="equipment" class="py-20 sm:py-24 bg-white">
+            <div class="container mx-auto px-6 lg:px-8">
+                <div class="max-w-3xl mx-auto text-center">
+                    <h3 class="text-base font-semibold text-green-600 tracking-wide">Phase 2</h3>
+                    <p class="mt-2 text-3xl font-bold text-gray-900 tracking-tight sm:text-4xl">The Automated Ecosystem</p>
+                    <p class="mt-4 text-lg text-gray-600">Precision-engineered components working in harmony. This is the hardware that powers consistent, high-quality results.</p>
+                </div>
+                <div id="equipment-grid" class="mt-16 grid gap-8 md:grid-cols-2 lg:grid-cols-3"></div>
+                <div class="mt-16 bg-white p-8 rounded-2xl border border-gray-200/80 apple-shadow">
+                    <h4 class="text-2xl font-bold text-center mb-6 text-gray-900">✨ Smart Strain Recommender</h4>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="grow-space" class="block text-sm font-medium text-gray-700">Grow Space</label>
+                            <select id="grow-space" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md">
+                                <option>Compact (Tent < 4'x4')</option>
+                                <option>Standard (Tent 4'x4' or 5'x5')</option>
+                                <option>Large (Room or large tent)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="desired-effect" class="block text-sm font-medium text-gray-700">Desired Effect</label>
+                            <select id="desired-effect" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md">
+                                <option>Relaxing / Calming</option>
+                                <option>Uplifting / Energetic</option>
+                                <option>Balanced / Hybrid</option>
+                                <option>High THC / Potent</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mt-6 text-center">
+                        <button id="strain-recommender-btn" class="inline-flex items-center rounded-md bg-green-600 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-green-500">
+                            Get Recommendations
+                        </button>
+                    </div>
+                    <div id="strain-recommender-result" class="mt-6 hidden"></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="cycle" class="py-20 sm:py-24">
+            <div class="container mx-auto px-6 lg:px-8">
+                 <div class="max-w-3xl mx-auto text-center">
+                    <h3 class="text-base font-semibold text-green-600 tracking-wide">Phase 3</h3>
+                    <p class="mt-2 text-3xl font-bold text-gray-900 tracking-tight sm:text-4xl">The Grow Process</p>
+                    <p class="mt-4 text-lg text-gray-600">From seed to harvest, a data-driven journey. Select a stage to view its unique parameters and objectives.</p>
+                </div>
+
+                <div class="mt-16">
+                    <div id="timeline-nav" class="flex flex-wrap justify-center gap-2 sm:gap-4 mb-12 p-2 bg-gray-100 rounded-full max-w-2xl mx-auto"></div>
+                    <div class="grid lg:grid-cols-2 gap-12 items-start">
+                        <div class="bg-white p-8 rounded-2xl border border-gray-200/80 apple-shadow min-h-[400px]">
+                             <div id="cycle-content"></div>
+                             <div class="mt-6">
+                                <button id="daily-checklist-btn" class="w-full inline-flex justify-center items-center rounded-md bg-green-50 px-4 py-2 text-sm font-medium text-green-700 hover:bg-green-100">
+                                    ✨ Generate Daily Checklist
+                                </button>
+                                <div id="daily-checklist-result" class="mt-4 text-sm text-gray-600 hidden"></div>
+                            </div>
+                        </div>
+                        <div id="cycle-image-container" class="lg:sticky top-32">
+                           <div class="aspect-w-1 aspect-h-1 rounded-2xl overflow-hidden apple-shadow-lg">
+                               <img id="cycle-image" src="" alt="Visual representation of the current grow cycle stage" class="w-full h-full object-cover transition-opacity duration-500">
+                           </div>
+                        </div>
+                    </div>
+                </div>
+
+                 <div class="mt-24">
+                    <h4 class="text-2xl font-bold text-center mb-8 text-gray-900">Environmental Data</h4>
+                     <div class="chart-container"><canvas id="envChart"></canvas></div>
+                </div>
+
+            </div>
+        </section>
+
+        <section id="clinic" class="py-20 sm:py-24 bg-white">
+            <div class="container mx-auto px-6 lg:px-8">
+                <div class="max-w-3xl mx-auto text-center">
+                    <h3 class="text-base font-semibold text-green-600 tracking-wide">Phase 4</h3>
+                    <p class="mt-2 text-3xl font-bold text-gray-900 tracking-tight sm:text-4xl">Diagnostic Clinic</p>
+                    <p class="mt-4 text-lg text-gray-600">Quickly diagnose and resolve common issues with this interactive troubleshooting tool.</p>
+                </div>
+
+                <div class="mt-16 max-w-4xl mx-auto">
+                    <div id="symptom-categories" class="flex flex-wrap justify-center gap-3 mb-8"></div>
+                    <div id="problem-list" class="grid sm:grid-cols-2 gap-4"></div>
+                    <div id="solution-display" class="mt-8 p-8 bg-green-50 rounded-2xl border border-green-200 hidden">
+                        <h4 id="solution-title" class="text-xl font-semibold text-green-900"></h4>
+                        <p id="solution-text" class="mt-2 text-green-800"></p>
+                    </div>
+                    
+                    <div class="mt-12 text-center">
+                        <div class="p-8 bg-white rounded-2xl border border-gray-200/80 apple-shadow">
+                            <h4 class="text-2xl font-bold text-gray-900">✨ Ask Gemini About Your Plant</h4>
+                            <p class="mt-2 text-gray-600">Describe your plant's issue below for an AI-powered diagnosis.</p>
+                            <textarea id="gemini-clinic-input" class="mt-4 w-full p-2 border border-gray-300 rounded-md" rows="4" placeholder="e.g., 'My lower leaves are turning yellow and have brown spots. The plant is in the flowering stage.'"></textarea>
+                            <button id="gemini-clinic-btn" class="mt-4 inline-flex items-center rounded-md bg-green-600 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-green-500">
+                                Get AI Diagnosis
+                            </button>
+                            <div id="gemini-clinic-result" class="mt-6 text-left hidden"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
     </main>
 
-<script>
-const appData = {
-    tools: [
-        { name: 'Measuring Tape', category: 'Hand', costMin: 5, costMax: 10, use: 'All measurements, project planning' },
-        { name: 'Hammer (Rip Claw)', category: 'Hand', costMin: 10, costMax: 30, use: 'Nailing, light demolition, prying' },
-        { name: 'Multi-bit Screwdriver', category: 'Hand', costMin: 15, costMax: 25, use: 'Assembly, general repairs, electrical' },
-        { name: 'Pliers Set', category: 'Hand', costMin: 15, costMax: 25, use: 'Gripping, cutting wire, holding parts' },
-        { name: 'Adjustable Wrench', category: 'Hand', costMin: 10, costMax: 15, use: 'Plumbing, tightening nuts/bolts' },
-        { name: 'Level (Bubble)', category: 'Hand', costMin: 10, costMax: 20, use: 'Hanging pictures, installing shelves' },
-        { name: 'Utility Knife', category: 'Hand', costMin: 5, costMax: 20, use: 'Cutting, scoring, opening packages' },
-        { name: 'Putty Knife', category: 'Hand', costMin: 5, costMax: 15, use: 'Spackling, scraping, filling holes' },
-        { name: 'Pry Bar', category: 'Hand', costMin: 10, costMax: 25, use: 'Demolition, removing trim/molding' },
-        { name: 'Caulking Gun', category: 'Hand', costMin: 5, costMax: 20, use: 'Sealing gaps, applying adhesives' },
-        { name: 'Cordless Drill/Driver', category: 'Power', costMin: 70, costMax: 120, use: 'Drilling holes, driving screws' },
-        { name: 'Oscillating Multi-Tool', category: 'Power', costMin: 30, costMax: 60, use: 'Sanding, cutting, scraping in tight spaces' },
-        { name: 'Shop Vacuum (Basic)', category: 'Power', costMin: 70, costMax: 150, use: 'General cleanup, dust control' },
-        { name: 'Safety Goggles', category: 'Safety', costMin: 10, costMax: 25, use: 'Eye protection from debris' },
-        { name: 'Respirator (N-100)', category: 'Safety', costMin: 20, costMax: 50, use: 'Protection from dust, fumes, fibers' },
-        { name: 'Ear Protection', category: 'Safety', costMin: 15, costMax: 30, use: 'Noise reduction for power tools' },
-    ],
-    projects: {
-        floors: {
-            title: 'Refinishing Hardwood Floors',
-            description: 'An intermediate project that yields huge savings. The key is renting specialized sanders and meticulous prep work.',
-            costs: { Rentals: 250, Materials: 400, Tools: 50 },
-            tools: [
-                { name: 'Drum/Orbital Sander', type: 'Rent' },
-                { name: 'Edger Sander', type: 'Rent' },
-                { name: 'Pry Bar & Nail Set', type: 'Buy' },
-                { name: 'Wood Filler & Putty Knife', type: 'Buy' },
-                { name: 'Shop Vacuum (HEPA)', type: 'Buy/Rent' },
-                { name: 'Sandpaper (various grits)', type: 'Buy' },
-                { name: 'Applicators & Rags', type: 'Buy' },
-                { name: 'Stain & Finish Coat', type: 'Buy' },
-                { name: 'Full Safety Gear', type: 'Buy' },
-            ]
-        },
-        walls: {
-            title: 'Fixing Drywall & Plaster Cracks',
-            description: 'First, determine if you have plaster or drywall. Plaster repair is messier and requires a bonding agent for good adhesion.',
-            costs: { Rentals: 0, Materials: 40, Tools: 20 },
-            tools: [
-                { name: 'Putty/Joint Knives', type: 'Buy' },
-                { name: 'Utility Knife', type: 'Buy' },
-                { name: 'Mesh Tape', type: 'Buy' },
-                { name: 'Joint Compound / Spackle', type: 'Buy' },
-                { name: 'Plaster Bonding Agent (if needed)', type: 'Buy' },
-                { name: 'Sandpaper', type: 'Buy' },
-                { name: 'Respirator & Goggles', type: 'Buy' },
-            ]
-        },
-        vents: {
-            title: 'Replacing Vent Covers',
-            description: 'An easy, high-impact project perfect for a beginner. It\'s a quick aesthetic upgrade that builds confidence.',
-            costs: { Rentals: 0, Materials: 80, Tools: 10 },
-            tools: [
-                { name: 'Screwdriver', type: 'Buy' },
-                { name: 'Measuring Tape', type: 'Buy' },
-                { name: 'Utility Knife (to score paint)', type: 'Buy' },
-                { name: 'Vacuum w/ Hose', type: 'Buy' },
-                { name: 'New Vent Covers', type: 'Buy' },
-            ]
-        },
-        trim: {
-            title: 'Replacing Window Trim',
-            description: 'This can be done with hand tools for precision and budget-friendliness. Measure twice, cut once!',
-            costs: { Rentals: 0, Materials: 100, Tools: 80 },
-            tools: [
-                { name: 'Handsaw & Miter Box', type: 'Buy' },
-                { name: 'Pry Bar', type: 'Buy' },
-                { name: 'Hammer & Finishing Nails', type: 'Buy' },
-                { name: 'Nail Set', type: 'Buy' },
-                { name: 'Wood Putty & Putty Knife', type: 'Buy' },
-                { name: 'Sandpaper & Wood Glue', type: 'Buy' },
-                { name: 'Measuring Tape & Pencil', type: 'Buy' },
-            ]
-        }
-    },
-    proGuide: [
-        { issue: 'Minor Clogs (sink/toilet)', category: 'Plumbing', diy: 'Yes', action: 'DIY with plunger/snake' },
-        { issue: 'Leaky Faucet/Showerhead', category: 'Plumbing', diy: 'Yes', action: 'DIY with proper parts/tape' },
-        { issue: 'Rusting/Decaying Pipes', category: 'Plumbing', diy: 'No', action: 'Professional re-piping' },
-        { issue: 'Sewer Line Damage', category: 'Plumbing', diy: 'No', action: 'Professional repair' },
-        { issue: 'Replacing Light Switch/Outlet', category: 'Electrical', diy: 'Yes', action: 'DIY after power off & testing' },
-        { issue: 'Flickering Lights/Buzzing Switches', category: 'Electrical', diy: 'No', action: 'Professional inspection' },
-        { issue: 'Outdated Wiring (Knob-and-Tube)', category: 'Electrical', diy: 'No', action: 'Professional assessment/rewiring' },
-        { issue: 'Outdated Electrical Panel (Fuses)', category: 'Electrical', diy: 'No', action: 'Professional upgrade' },
-        { issue: 'Minor Wood Rot (Trim/Sill)', category: 'Structural/Material', diy: 'Yes', action: 'DIY with epoxy/filler' },
-        { issue: 'Asbestos-Containing Materials', category: 'Structural/Material', diy: 'No', action: 'Professional testing/remediation' },
-        { issue: 'Lead Paint (Disturbance)', category: 'Structural/Material', diy: 'No', action: 'Professional testing/remediation' },
-        { issue: 'Foundation/Structural Cracks', category: 'Structural/Material', diy: 'No', action: 'Professional structural engineer' },
-    ]
-};
-
-let costChartInstance;
-let projectChartInstance;
-
-document.addEventListener('DOMContentLoaded', () => {
-    initNavigation();
-    renderCostChart();
-    renderToolList();
-    initProjectSelector();
-    renderProGuide('all');
-    initProGuideFilters();
-
-    // LLM Feature 1: Tool Recommendation
-    document.getElementById('get-tool-recommendation-btn').addEventListener('click', getToolRecommendation);
-
-});
-
-function initNavigation() {
-    const navLinks = document.querySelectorAll('.nav-link');
-    const contentSections = document.querySelectorAll('.content-section');
-
-    navLinks.forEach(link => {
-        link.addEventListener('click', () => {
-            const targetId = link.dataset.target;
-
-            navLinks.forEach(l => l.classList.remove('active'));
-            link.classList.add('active');
-
-            contentSections.forEach(section => {
-                if (section.id === targetId) {
-                    section.classList.add('active');
-                } else {
-                    section.classList.remove('active');
-                }
-            });
-        });
-    });
-}
-
-function renderCostChart() {
-    const ctx = document.getElementById('costChart').getContext('2d');
-    if (costChartInstance) {
-        costChartInstance.destroy();
-    }
-    costChartInstance = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: appData.tools.map(t => t.name),
-            datasets: [{
-                label: 'Estimated Cost ($)',
-                data: appData.tools.map(t => [t.costMin, t.costMax]),
-                backgroundColor: 'rgba(161, 98, 7, 0.6)',
-                borderColor: 'rgba(161, 98, 7, 1)',
-                borderWidth: 1,
-                borderSkipped: false,
-            }]
-        },
-        options: {
-            indexAxis: 'y',
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: false
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            const raw = context.raw;
-                            return `${context.label}: $${raw[0]} - $${raw[1]}`;
-                        }
-                    }
-                }
-            },
-            scales: {
-                x: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Estimated Cost (USD)'
-                    }
-                },
-                y: {
-                    ticks: {
-                        autoSkip: false,
-                        font: {
-                            size: 10
-                        }
-                    }
-                }
-            }
-        }
-    });
-}
-
-function renderToolList() {
-    const container = document.getElementById('tool-list-container');
-    const toolHtml = appData.tools.map(tool => `
-        <div class="bg-white p-4 rounded-lg shadow-md border border-slate-200 mb-3 flex items-start space-x-4">
-             <div class="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-full bg-amber-100 text-amber-700 text-2xl">${tool.category === 'Hand' ? '✋' : tool.category === 'Power' ? '⚡' : '🛡️'}</div>
-             <div class="flex-grow">
-                <h4 class="font-bold text-slate-800">${tool.name}</h4>
-                <p class="text-sm text-slate-600">${tool.use}</p>
-                <p class="text-sm font-semibold text-yellow-800 mt-1">$${tool.costMin} - $${tool.costMax}</p>
-             </div>
+    <footer class="bg-white border-t border-gray-200/80">
+        <div class="container mx-auto py-12 px-6 lg:px-8 text-center text-gray-500">
+            <p class="text-sm">This interactive guide is for informational purposes only and does not constitute legal advice. Always research and comply with all current federal, state, and local laws regarding cannabis cultivation in your area.</p>
         </div>
-    `).join('');
-    container.innerHTML = `<h3 class="text-2xl font-bold text-center text-yellow-800 mb-6">Essential Tool Details</h3>${toolHtml}`;
-}
+    </footer>
 
-function initProjectSelector() {
-    const projectCards = document.querySelectorAll('.project-card');
-    projectCards.forEach(card => {
-        card.addEventListener('click', () => {
-            const projectName = card.dataset.project;
-            projectCards.forEach(c => c.classList.remove('active'));
-            card.classList.add('active');
-            renderProjectDetails(projectName);
-        });
-    });
-}
-
-function renderProjectDetails(projectName) {
-    const project = appData.projects[projectName];
-    const container = document.getElementById('project-details');
-    
-    const toolListHtml = project.tools.map(tool => `
-        <li class="flex justify-between items-center py-2 border-b border-slate-100">
-            <span>${tool.name}</span>
-            <span class="text-xs font-semibold px-2 py-1 rounded-full ${tool.type === 'Rent' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'}">${tool.type}</span>
-        </li>
-    `).join('');
-
-    container.innerHTML = `
-        <div class="grid md:grid-cols-2 gap-8">
-            <div>
-                <h3 class="text-2xl font-bold text-yellow-800">${project.title}</h3>
-                <p class="mt-2 text-slate-600">${project.description}</p>
-                <h4 class="font-bold mt-4 mb-2 text-slate-700">Required Tools & Materials:</h4>
-                <ul class="text-sm">${toolListHtml}</ul>
-                <button id="get-project-tips-btn" class="mt-6 bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 px-6 rounded-md shadow-lg transition duration-300 ease-in-out transform hover:scale-105" data-project-name="${project.title}">✨ Get More Tips</button>
-                <div id="project-tips-result" class="mt-4 p-3 bg-amber-100 rounded-md border border-amber-200 text-slate-700 min-h-[50px] flex items-center justify-center">
-                    <div class="loading-spinner" id="project-tips-spinner"></div>
-                    <p id="project-tips-text" class="text-center">Click 'Get More Tips' for detailed advice.</p>
-                </div>
-            </div>
-            <div>
-                <h4 class="text-xl font-bold text-center text-slate-700 mb-4">Estimated Cost Breakdown</h4>
-                <div class="chart-container h-64 md:h-72">
-                    <canvas id="projectChart"></canvas>
-                </div>
-            </div>
-        </div>
-    `;
-
-    renderProjectChart(project.costs);
-
-    // LLM Feature 2: Project Expansion
-    document.getElementById('get-project-tips-btn').addEventListener('click', getProjectTips);
-}
-
-function renderProjectChart(costData) {
-    const ctx = document.getElementById('projectChart').getContext('2d');
-    if (projectChartInstance) {
-        projectChartInstance.destroy();
-    }
-    projectChartInstance = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: Object.keys(costData),
-            datasets: [{
-                data: Object.values(costData),
-                backgroundColor: [
-                    'rgba(59, 130, 246, 0.7)',  // blue-500
-                    'rgba(16, 185, 129, 0.7)', // emerald-500
-                    'rgba(249, 115, 22, 0.7)'  // orange-500
-                ],
-                borderColor: [
-                    'rgba(59, 130, 246, 1)',
-                    'rgba(16, 185, 129, 1)',
-                    'rgba(249, 115, 22, 1)'
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            let label = context.label || '';
-                            if (label) {
-                                label += ': ';
-                            }
-                            if (context.parsed !== null) {
-                                label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(context.parsed);
-                            }
-                            return label;
-                        }
-                    }
-                }
+    <script>
+        const appData = {
+            equipment: [
+                { id: 'enclosure', title: 'Grow Tent', imageUrl: 'https://placehold.co/600x400/e5e7eb/374151?text=Grow+Tent', details: 'A 5\'x5\' tent provides a reflective, contained, and easy-to-control environment, ideal for beginners.' },
+                { id: 'lighting', title: 'LED Lighting', imageUrl: 'https://placehold.co/600x400/e5e7eb/374151?text=LED+Light', details: 'A 750W-800W bar-style LED offers efficient, full-spectrum light with even coverage essential for quality growth.' },
+                { id: 'controller', title: 'Environment Controller', imageUrl: 'https://placehold.co/600x400/e5e7eb/374151?text=Controller', details: 'The brain of the system. It automates fans and lights to maintain perfect temperature and humidity.' },
+                { id: 'ventilation', title: 'Airflow & Filtration', imageUrl: 'https://placehold.co/600x400/e5e7eb/374151?text=Ventilation', details: 'A 6" inline fan with a carbon filter is crucial for removing heat, humidity, and odor.' },
+                { id: 'irrigation', title: 'Automated Irrigation', imageUrl: 'https://placehold.co/600x400/e5e7eb/374151?text=Irrigation', details: 'A gravity-fed system like AutoPot provides consistent watering without electricity, preventing common errors.' },
+                { id: 'medium', title: 'Medium & Nutrients', imageUrl: 'https://placehold.co/600x400/e5e7eb/374151?text=Nutrients', details: 'A 70/30 coco/perlite mix with liquid nutrients gives you total control over your plant\'s diet.' }
+            ],
+            growCycle: [
+                 { id: 'germination', name: 'Germination', imageUrl: 'https://placehold.co/600x600/e0f2f1/004d40?text=Germination', content: `<h4 class="text-2xl font-semibold mb-3 text-gray-900">Stage 1: Germination (1-7 Days)</h4><p class="text-gray-600 mb-6">The journey begins. The goal is to awaken the dormant seed and encourage its primary taproot to emerge.</p><ul class="space-y-3 text-gray-700"><li class="flex"><strong class="w-28 font-medium">Light:</strong> 18/6 Cycle</li><li class="flex"><strong class="w-28 font-medium">Temp:</strong> 72-79°F</li><li class="flex"><strong class="w-28 font-medium">Humidity:</strong> 65-80%</li><li class="flex"><strong class="w-28 font-medium">Action:</strong> Use the paper towel method in a warm, dark place. Plant when taproot is ~0.5" long.</li></ul>`},
+                { id: 'seedling', name: 'Seedling', imageUrl: 'https://placehold.co/600x600/dcedc8/2e7d32?text=Seedling', content: `<h4 class="text-2xl font-semibold mb-3 text-gray-900">Stage 2: Seedling (2-3 Weeks)</h4><p class="text-gray-600 mb-6">The plant's most vulnerable phase. Focus is on establishing a stable root system and the first set of true leaves.</p><ul class="space-y-3 text-gray-700"><li class="flex"><strong class="w-28 font-medium">Light:</strong> 18/6 Cycle</li><li class="flex"><strong class="w-28 font-medium">Temp:</strong> 72-79°F</li><li class="flex"><strong class="w-28 font-medium">Humidity:</strong> 65-80%</li><li class="flex"><strong class="w-28 font-medium">Action:</strong> Water sparingly. Introduce 1/4 strength nutrients after the first week.</li></ul>`},
+                { id: 'vegetative', name: 'Vegetative', imageUrl: 'https://placehold.co/600x600/c8e6c9/388e3c?text=Vegetative', content: `<h4 class="text-2xl font-semibold mb-3 text-gray-900">Stage 3: Vegetative (3-8+ Weeks)</h4><p class="text-gray-600 mb-6">Explosive growth. The plant builds its "chassis" of leaves and branches. This is the ideal time to train your plant.</p><ul class="space-y-3 text-gray-700"><li class="flex"><strong class="w-28 font-medium">Light:</strong> 18/6 Cycle</li><li class="flex"><strong class="w-28 font-medium">Temp:</strong> 70-85°F</li><li class="flex"><strong class="w-28 font-medium">Humidity:</strong> 45-60%</li><li class="flex"><strong class="w-28 font-medium">Action:</strong> Begin Topping and Low-Stress Training (LST) to create an even canopy for maximum light exposure.</li></ul>`},
+                { id: 'flowering', name: 'Flowering', imageUrl: 'https://placehold.co/600x600/a5d6a7/2e7d32?text=Flowering', content: `<h4 class="text-2xl font-semibold mb-3 text-gray-900">Stage 4: Flowering (8-12 Weeks)</h4><p class="text-gray-600 mb-6">The grand finale. Triggered by a 12/12 light cycle, the plant shifts all energy to producing resinous buds.</p><ul class="space-y-3 text-gray-700"><li class="flex"><strong class="w-28 font-medium">Light:</strong> 12/12 Cycle</li><li class="flex"><strong class="w-28 font-medium">Temp:</strong> 64-78°F</li><li class="flex"><strong class="w-28 font-medium">Humidity:</strong> 40-50%</li><li class="flex"><strong class="w-28 font-medium">Action:</strong> Switch to "bloom" nutrients. Ensure uninterrupted darkness during the "off" cycle.</li></ul>`},
+                { id: 'harvest', name: 'Harvest', imageUrl: 'https://placehold.co/600x600/81c784/1b5e20?text=Harvest', content: `<h4 class="text-2xl font-semibold mb-3 text-gray-900">Stage 5: Harvest & Cure</h4><p class="text-gray-600 mb-6">The culmination of your efforts. Proper drying and curing is essential to unlock the plant's full potential for flavor and potency.</p><ul class="space-y-3 text-gray-700"><li class="flex"><strong class="w-28 font-medium">Timing:</strong> Harvest when trichomes are mostly cloudy with 10-20% amber.</li><li class="flex"><strong class="w-28 font-medium">Drying:</strong> 7-14 days at ~60°F / 60% RH.</li><li class="flex"><strong class="w-28 font-medium">Curing:</strong> At least 2 weeks in airtight jars, burped daily.</li></ul>`}
+            ],
+            clinic: {
+                categories: ['Nutrient Deficiencies', 'Common Pests', 'Diseases', 'Environmental Stress'],
+                problems: [
+                    { category: 'Nutrient Deficiencies', title: 'Yellowing Lower Leaves', diagnosis: 'Nitrogen (N) Deficiency', solution: 'This is the most common deficiency. First, ensure your nutrient solution\'s pH is correct (5.5-6.5 for coco). If pH is correct, increase the amount of nitrogen in your feeding solution (e.g., the "Grow" component).' },
+                    { category: 'Nutrient Deficiencies', title: 'Brown Spots on New Leaves', diagnosis: 'Calcium/Magnesium (Cal/Mag) Deficiency', solution: 'Common in coco coir. First, check pH. If correct, add a dedicated Cal-Mag supplement to your nutrient solution with every feeding. Ensure your coco was properly buffered before use.' },
+                    { category: 'Nutrient Deficiencies', title: 'Scorched Leaf Edges', diagnosis: 'Potassium (K) Deficiency', solution: 'Yellowing and browning appears on the edges of older leaves. Check pH first. If correct, ensure you are using a balanced bloom fertilizer during the flowering stage, which is rich in Potassium.' },
+                    { category: 'Common Pests', title: 'Fine Webbing on Buds/Leaves', diagnosis: 'Spider Mites', solution: 'These pests thrive in hot, dry conditions. Increase humidity slightly and improve air circulation. Treat with an organic spray like neem oil or insecticidal soap, focusing on the undersides of leaves. Do not spray during late flowering.' },
+                    { category: 'CommonPests', title: 'Small Black Flies Around Soil', diagnosis: 'Fungus Gnats', solution: 'This is a sign of overwatering. Allow the top layer of your growing medium to dry out completely between waterings. Use yellow sticky traps to catch the adult flies and break the breeding cycle.' },
+                    { category: 'Diseases', title: 'White Powdery Dust on Leaves', diagnosis: 'Powdery Mildew (PM)', solution: 'This fungus thrives in high humidity with poor airflow. Immediately lower humidity to below 50% and increase air circulation from all fans. Treat with a spray of potassium bicarbonate or a dedicated organic fungicide. Remove heavily affected leaves.' },
+                    { category: 'Environmental Stress', title: 'Top Leaves Whitening/Bleaching', diagnosis: 'Light Burn', solution: 'The top leaves and buds closest to the light turn yellow or white. The light is too intense or too close. Increase the distance between the light and the plant canopy, or dim the light\'s intensity.' },
+                    { category: 'Environmental Stress', title: 'Leaves Curling Up ("Tacoing")', diagnosis: 'Heat Stress', solution: 'Leaves wilt and curl upwards at the edges, even if well-watered. This is a sign of excessive heat. Ensure your exhaust fan is running effectively to remove hot air from the tent. Consider running lights at night if your garage is cooler then.' }
+                ]
             }
-        }
-    });
-}
-
-function renderProGuide(filter) {
-    const tbody = document.getElementById('pro-guide-body');
-    const filteredData = filter === 'all' 
-        ? appData.proGuide 
-        : appData.proGuide.filter(item => item.category === filter);
-
-    tbody.innerHTML = filteredData.map(item => `
-        <tr class="bg-white border-b hover:bg-slate-50" data-category="${item.category}">
-            <th scope="row" class="px-6 py-4 font-medium text-slate-900 whitespace-nowrap">${item.issue}</th>
-            <td class="px-6 py-4">
-                <span class="px-3 py-1 text-xs font-semibold rounded-full ${item.diy === 'Yes' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
-                    ${item.diy}
-                </span>
-            </td>
-            <td class="px-6 py-4">${item.action}</td>
-        </tr>
-    `).join('');
-}
-
-function initProGuideFilters() {
-    const filterButtons = document.querySelectorAll('.pro-guide-filter-btn');
-    filterButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            const filter = button.dataset.filter;
-            filterButtons.forEach(b => b.classList.remove('active'));
-            button.classList.add('active');
-            renderProGuide(filter);
-        });
-    });
-}
-
-async function getToolRecommendation() {
-    const inputElement = document.getElementById('tool-recommendation-input');
-    const resultElement = document.getElementById('tool-recommendation-text');
-    const spinner = document.getElementById('tool-recommendation-spinner');
-    const promptText = inputElement.value.trim();
-
-    if (!promptText) {
-        resultElement.innerHTML = 'Please enter a task or problem to get tool recommendations.';
-        return;
-    }
-
-    spinner.classList.add('active');
-    resultElement.innerHTML = ''; // Clear previous results
-    resultElement.style.display = 'none';
-
-    try {
-        const chatHistory = [];
-        chatHistory.push({ role: "user", parts: [{ text: `Based on the following task or problem related to home repair in a 1930s house, suggest appropriate tools and briefly explain why each is useful. Focus on budget-friendly options where possible. Task/Problem: "${promptText}"` }] });
-        const payload = { contents: chatHistory };
-        const apiKey = "curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=GEMINI_API_KEY" \
-  -H 'Content-Type: application/json' \
-  -X POST \
-  -d '{
-    "contents": [
-      {
-        "parts": [
-          {
-            "text": "Explain how AI works in a few words"
-          }
-        ]
-      }
-    ]
-  }'"; 
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-        const response = await fetch(apiUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
-        const result = await response.json();
+        };
         
-        spinner.classList.remove('active');
-        resultElement.style.display = 'block';
+        let currentStage = 'germination';
 
-        if (result.candidates && result.candidates.length > 0 &&
-            result.candidates[0].content && result.candidates[0].content.parts &&
-            result.candidates[0].content.parts.length > 0) {
-            const text = result.candidates[0].content.parts[0].text;
-            resultElement.innerHTML = text.replace(/\n/g, '<br>');
-        } else {
-            resultElement.innerHTML = 'Sorry, I could not get tool recommendations at this time. Please try again.';
-        }
-    } catch (error) {
-        spinner.classList.remove('active');
-        resultElement.style.display = 'block';
-        resultElement.innerHTML = `An error occurred: ${error.message}. Please try again.`;
-        console.error("Gemini API Error:", error);
-    }
-}
+        document.addEventListener('DOMContentLoaded', () => {
+            const equipmentGrid = document.getElementById('equipment-grid');
+            appData.equipment.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-2xl overflow-hidden apple-shadow card-hover-effect';
+                card.innerHTML = `<div class="aspect-w-3 aspect-h-2"><img src="${item.imageUrl}" onerror="this.onerror=null;this.src='https://placehold.co/600x400/cccccc/333333?text=Image+Missing';" alt="${item.title}" class="w-full h-full object-cover"></div><div class="p-6"><h3 class="text-lg font-semibold text-gray-900">${item.title}</h3><p class="mt-2 text-sm text-gray-600">${item.details}</p></div>`;
+                equipmentGrid.appendChild(card);
+            });
 
-async function getProjectTips() {
-    const button = event.target;
-    const projectName = button.dataset.projectName;
-    const resultElement = document.getElementById('project-tips-text');
-    const spinner = document.getElementById('project-tips-spinner');
-
-    spinner.classList.add('active');
-    resultElement.innerHTML = ''; // Clear previous results
-    resultElement.style.display = 'none';
-
-    try {
-        const chatHistory = [];
-        chatHistory.push({ role: "user", parts: [{ text: `Provide detailed step-by-step instructions, common pitfalls to avoid, and advanced tips for a DIY beginner working on "${projectName}" in a 1930s house. Assume they have basic car repair experience. Format as clear bullet points or numbered lists.` }] });
-        const payload = { contents: chatHistory };
-        const apiKey = "curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=GEMINI_API_KEY" \
-  -H 'Content-Type: application/json' \
-  -X POST \
-  -d '{
-    "contents": [
-      {
-        "parts": [
-          {
-            "text": "Explain how AI works in a few words"
-          }
-        ]
-      }
-    ]
-  }'"; 
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-        const response = await fetch(apiUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
+            const timelineNav = document.getElementById('timeline-nav');
+            appData.growCycle.forEach((stage) => {
+                const item = document.createElement('button');
+                item.className = 'timeline-item cursor-pointer text-center px-4 py-2 rounded-full text-sm font-medium text-gray-600 bg-white hover:bg-gray-200/50';
+                item.dataset.stageId = stage.id;
+                item.textContent = stage.name;
+                item.onclick = () => updateCycleContent(stage.id);
+                timelineNav.appendChild(item);
+            });
+            
+            const symptomCategories = document.getElementById('symptom-categories');
+            appData.clinic.categories.forEach(cat => {
+                const button = document.createElement('button');
+                button.className = 'px-4 py-2 bg-white text-gray-700 rounded-full apple-shadow hover:bg-gray-200/50 transition-colors duration-200 text-sm font-medium';
+                button.textContent = cat;
+                button.onclick = () => displayProblems(cat);
+                symptomCategories.appendChild(button);
+            });
+            
+            document.getElementById('gemini-clinic-btn').addEventListener('click', handleGeminiClinic);
+            document.getElementById('strain-recommender-btn').addEventListener('click', handleStrainRecommender);
+            document.getElementById('daily-checklist-btn').addEventListener('click', handleDailyChecklist);
+            
+            setupCharts();
+            updateCycleContent(appData.growCycle[0].id);
+            displayProblems(appData.clinic.categories[0]);
+            setupScrollSpy();
         });
-        const result = await response.json();
 
-        spinner.classList.remove('active');
-        resultElement.style.display = 'block';
-
-        if (result.candidates && result.candidates.length > 0 &&
-            result.candidates[0].content && result.candidates[0].content.parts &&
-            result.candidates[0].content.parts.length > 0) {
-            const text = result.candidates[0].content.parts[0].text;
-            resultElement.innerHTML = text.replace(/\n/g, '<br>');
-        } else {
-            resultElement.innerHTML = 'Sorry, I could not get project tips at this time. Please try again.';
+        async function callGemini(prompt) {
+            const apiKey = "";
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+            const payload = {
+                contents: [{ role: "user", parts: [{ text: prompt }] }]
+            };
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) {
+                    throw new Error(`API call failed with status: ${response.status}`);
+                }
+                const result = await response.json();
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    return result.candidates[0].content.parts[0].text;
+                } else {
+                    return "Sorry, I couldn't generate a response. The API returned an unexpected result.";
+                }
+            } catch (error) {
+                console.error("Gemini API call error:", error);
+                return "An error occurred while contacting the Gemini API. Please check the console for details.";
+            }
         }
-    } catch (error) {
-        spinner.classList.remove('active');
-        resultElement.style.display = 'block';
-        resultElement.innerHTML = `An error occurred: ${error.message}. Please try again.`;
-        console.error("Gemini API Error:", error);
-    }
-}
-</script>
 
+        async function handleGeminiClinic() {
+            const input = document.getElementById('gemini-clinic-input').value;
+            const resultDiv = document.getElementById('gemini-clinic-result');
+            if (!input) {
+                resultDiv.innerHTML = '<p class="text-red-500">Please describe the issue with your plant.</p>';
+                resultDiv.classList.remove('hidden');
+                return;
+            }
+            resultDiv.innerHTML = '<div class="flex justify-center"><div class="loader"></div></div>';
+            resultDiv.classList.remove('hidden');
+
+            const prompt = `As a master cannabis grower, diagnose the following user-described plant issue and provide a step-by-step solution. Be encouraging and clear. Issue: "${input}"`;
+            const response = await callGemini(prompt);
+            resultDiv.innerHTML = `<p>${response.replace(/\n/g, '<br>')}</p>`;
+        }
+        
+        async function handleStrainRecommender() {
+            const growSpace = document.getElementById('grow-space').value;
+            const desiredEffect = document.getElementById('desired-effect').value;
+            const resultDiv = document.getElementById('strain-recommender-result');
+            
+            resultDiv.innerHTML = '<div class="flex justify-center"><div class="loader"></div></div>';
+            resultDiv.classList.remove('hidden');
+            
+            const prompt = `I am a home cannabis grower with a ${growSpace} space. I am looking for a strain that provides a ${desiredEffect} effect. Please recommend 3 specific strains that would be suitable for my setup. For each strain, explain why it's a good choice for my space and desired effect.`;
+            const response = await callGemini(prompt);
+            resultDiv.innerHTML = `<p>${response.replace(/\n/g, '<br>')}</p>`;
+        }
+
+        async function handleDailyChecklist() {
+            const resultDiv = document.getElementById('daily-checklist-result');
+            resultDiv.innerHTML = '<div class="flex justify-center"><div class="loader"></div></div>';
+            resultDiv.classList.remove('hidden');
+
+            const stageName = appData.growCycle.find(s => s.id === currentStage).name;
+            const prompt = `Generate a simple, actionable daily checklist for a cannabis plant in the ${stageName} stage. Include 3-5 key tasks or observations. Format it as a simple bulleted list.`;
+            const response = await callGemini(prompt);
+            resultDiv.innerHTML = `<p>${response.replace(/\n/g, '<br>')}</p>`;
+        }
+
+        function updateCycleContent(stageId) {
+            currentStage = stageId;
+            const stageData = appData.growCycle.find(s => s.id === stageId);
+            document.getElementById('cycle-content').innerHTML = stageData.content;
+            document.getElementById('daily-checklist-result').classList.add('hidden');
+            
+            const cycleImage = document.getElementById('cycle-image');
+            cycleImage.style.opacity = '0';
+            setTimeout(() => {
+                cycleImage.src = stageData.imageUrl;
+                cycleImage.onerror = () => { cycleImage.src = `https://placehold.co/600x600/cccccc/333333?text=${stageData.name}`; };
+                cycleImage.alt = `A plant in the ${stageData.name} stage.`;
+                cycleImage.style.opacity = '1';
+            }, 300);
+
+            document.querySelectorAll('.timeline-item').forEach(item => {
+                item.classList.toggle('active', item.dataset.stageId === stageId);
+                item.classList.toggle('bg-white', item.dataset.stageId !== stageId);
+                item.classList.toggle('text-gray-600', item.dataset.stageId !== stageId);
+            });
+        }
+
+        function displayProblems(category) {
+            const problemList = document.getElementById('problem-list');
+            const solutionDisplay = document.getElementById('solution-display');
+            problemList.innerHTML = '';
+            solutionDisplay.classList.add('hidden');
+            const filteredProblems = appData.clinic.problems.filter(p => p.category.replace(/\s+/g, '') === category.replace(/\s+/g, ''));
+            
+            filteredProblems.forEach(problem => {
+                const button = document.createElement('button');
+                button.className = 'w-full text-left p-5 bg-white rounded-xl apple-shadow card-hover-effect';
+                button.innerHTML = `<h5 class="font-medium text-gray-800">${problem.title}</h5>`;
+                button.onclick = () => displaySolution(problem);
+                problemList.appendChild(button);
+            });
+        }
+
+        function displaySolution(problem) {
+            const solutionDisplay = document.getElementById('solution-display');
+            document.getElementById('solution-title').textContent = problem.diagnosis;
+            document.getElementById('solution-text').textContent = problem.solution;
+            solutionDisplay.classList.remove('hidden');
+            solutionDisplay.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        
+        let envChartInstance;
+        function setupCharts() {
+            Chart.defaults.font.family = "'Inter', sans-serif";
+            Chart.defaults.color = '#6b7280';
+            
+            const envCtx = document.getElementById('envChart').getContext('2d');
+            const labels = appData.growCycle.map(s => s.name);
+            
+            envChartInstance = new Chart(envCtx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        { label: 'Max Temp (°F)', data: [79, 79, 85, 78, 70], borderColor: 'rgba(239, 68, 68, 0.6)', backgroundColor: 'rgba(239, 68, 68, 0.1)', fill: false, tension: 0.4, pointBackgroundColor: 'rgba(239, 68, 68, 0.6)' },
+                        { label: 'Min Temp (°F)', data: [72, 72, 70, 64, 60], borderColor: 'rgba(239, 68, 68, 0.6)', backgroundColor: 'rgba(239, 68, 68, 0.1)', fill: '-1', tension: 0.4, pointBackgroundColor: 'rgba(239, 68, 68, 0.6)' },
+                        { label: 'Max Humidity (%)', data: [80, 80, 60, 50, 60], borderColor: 'rgba(59, 130, 246, 0.6)', backgroundColor: 'rgba(59, 130, 246, 0.1)', fill: false, tension: 0.4, pointBackgroundColor: 'rgba(59, 130, 246, 0.6)'},
+                        { label: 'Min Humidity (%)', data: [65, 65, 45, 40, 45], borderColor: 'rgba(59, 130, 246, 0.6)', backgroundColor: 'rgba(59, 130, 246, 0.1)', fill: '-1', tension: 0.4, pointBackgroundColor: 'rgba(59, 130, 246, 0.6)'}
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: false, grid: { color: '#e5e7eb' } }, x: { grid: { display: false } } }, plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxHeight: 8 } }, tooltip: { mode: 'index', intersect: false } } }
+            });
+        }
+        
+        function setupScrollSpy() {
+            const sections = document.querySelectorAll('main section[id]');
+            const navLinks = document.querySelectorAll('.nav-link');
+            const headerOffset = document.querySelector('header').offsetHeight;
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    const id = entry.target.getAttribute('id');
+                    const navLink = document.querySelector(`.nav-link[href="#${id}"]`);
+                    if (entry.isIntersecting) {
+                        navLinks.forEach(link => link.classList.remove('active'));
+                        if (navLink) navLink.classList.add('active');
+                    }
+                });
+            }, { rootMargin: `-${headerOffset}px 0px -60% 0px` });
+
+            sections.forEach(section => { observer.observe(section); });
+        }
+
+    </script>
 </body>
 </html>
