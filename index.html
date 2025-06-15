@@ -585,7 +585,20 @@ async function getToolRecommendation() {
         const chatHistory = [];
         chatHistory.push({ role: "user", parts: [{ text: `Based on the following task or problem related to home repair in a 1930s house, suggest appropriate tools and briefly explain why each is useful. Focus on budget-friendly options where possible. Task/Problem: "${promptText}"` }] });
         const payload = { contents: chatHistory };
-        const apiKey = ""; 
+        const apiKey = "curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=GEMINI_API_KEY" \
+  -H 'Content-Type: application/json' \
+  -X POST \
+  -d '{
+    "contents": [
+      {
+        "parts": [
+          {
+            "text": "Explain how AI works in a few words"
+          }
+        ]
+      }
+    ]
+  }'"; 
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
         const response = await fetch(apiUrl, {
             method: 'POST',
@@ -627,7 +640,20 @@ async function getProjectTips() {
         const chatHistory = [];
         chatHistory.push({ role: "user", parts: [{ text: `Provide detailed step-by-step instructions, common pitfalls to avoid, and advanced tips for a DIY beginner working on "${projectName}" in a 1930s house. Assume they have basic car repair experience. Format as clear bullet points or numbered lists.` }] });
         const payload = { contents: chatHistory };
-        const apiKey = ""; 
+        const apiKey = "curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=GEMINI_API_KEY" \
+  -H 'Content-Type: application/json' \
+  -X POST \
+  -d '{
+    "contents": [
+      {
+        "parts": [
+          {
+            "text": "Explain how AI works in a few words"
+          }
+        ]
+      }
+    ]
+  }'"; 
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
         const response = await fetch(apiUrl, {
             method: 'POST',
